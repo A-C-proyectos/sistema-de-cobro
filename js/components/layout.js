@@ -19,7 +19,7 @@ function inicializarLayout({ activo, titulo, subtitulo = '', dentroDePages = fal
       <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
       <aside class="sidebar" id="sidebar">
         <div class="sidebar__brand">
-          <img class="sidebar__brand-icon" src="../assets/logo.png" alt="Logo">
+          <img class="sidebar__brand-icon" src="./assets/logo.png" alt="Logo">
           <span class="sidebar__brand-text">${Helpers.escaparHTML(config.nombreNegocio)}<small>Sistema POS</small></span>
         </div>
         <nav class="sidebar__nav">
