@@ -1,10 +1,10 @@
-# 🐟 Pescadería del Mar — Sistema POS e Inventario
+# 🐟 Cero Sesenta — Sistema POS e Inventario
 
 Aplicación web completa de punto de venta (POS) e inventario para una pescadería, construida **100% con HTML5, CSS3 y JavaScript vanilla** (módulos ES6), sin frameworks. Los datos se guardan en el `localStorage` del navegador.
 
 ---
 
-## 1. Qué es el sistema
+## 1. Qué es el sistema?
 
 Un sistema de administración pensado para el día a día de una pescadería:
 
@@ -14,7 +14,7 @@ Un sistema de administración pensado para el día a día de una pescadería:
 - Consultar el **historial de ventas** y generar **comprobantes**.
 - Ver **reportes y gráficos** del negocio (ventas, productos más/menos vendidos, ganancias).
 
-## 2. Estructura de carpetas
+## 2. Estructura de carpetas no tocar por favor!!!!
 
 ```text
 pescaderia-pos/
@@ -57,13 +57,15 @@ No hace falta tocar código. Ve a **Configuración → Nombre del negocio**, esc
 - El título de la pestaña del navegador (o de la ventana, si usas el modo app).
 - El encabezado de las facturas y el cierre de caja.
 
+El sistema ya viene configurado por defecto con el nombre **"Cero Sesenta"** — si necesitas cambiarlo más adelante, es desde esa misma pantalla, sin tocar código.
+
 ## 3.2. Cómo crear un acceso directo en el escritorio con ícono propio
 
 **Windows:**
 1. Click derecho sobre `Iniciar-App.bat` → "Crear acceso directo".
 2. Mueve ese acceso directo al Escritorio.
 3. Click derecho sobre el acceso directo → "Propiedades" → botón "Cambiar icono..." → selecciona tu archivo de logo en formato `.ico` (ver más abajo cómo conseguirlo).
-4. Click derecho sobre el acceso directo → "Cambiar nombre" → ponle el nombre que quieras (ej. "Pescadería Doña Ana").
+4. Click derecho sobre el acceso directo → "Cambiar nombre" → ponle el nombre que quieras (ej. "Cero Sesenta").
 
 **Mac:**
 1. Selecciona `Iniciar-App.command`, cópialo (Cmd+C) y pégalo (Cmd+V) en el Escritorio como acceso directo (alias): con el archivo seleccionado, Cmd+Ctrl+Alt+arrastrar al Escritorio, o click derecho → "Crear alias".
@@ -140,4 +142,4 @@ Como el resto de la aplicación (páginas POS, inventario, clientes, etc.) solo 
 
 ---
 
-Hecho con HTML, CSS y JavaScript vanilla. 🐟
+Hecho con HTML, CSS y JavaScript vanilla por inFAMOUSK1:https://github.com/inFAMOUSK1 Y TheSamuWRLD:https://github.com/alexanderheredia
