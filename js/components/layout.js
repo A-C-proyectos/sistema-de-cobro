@@ -8,9 +8,11 @@
 
 function inicializarLayout({ activo, titulo, subtitulo = '', dentroDePages = false }) {
   Storage.asegurarDatosIniciales();
+  const config = Storage.obtenerConfig();
+  document.title = `${titulo} · ${config.nombreNegocio}`;
+
   const sidebarSlot = document.getElementById('sidebar-slot');
   const topbarSlot = document.getElementById('topbar-slot');
-  const config = Storage.obtenerConfig();
 
   if (sidebarSlot) {
     sidebarSlot.innerHTML = `
@@ -28,7 +30,7 @@ function inicializarLayout({ activo, titulo, subtitulo = '', dentroDePages = fal
             </a>
           `).join('')}
         </nav>
-        <div class="sidebar__footer">Pescadería del Mar © ${new Date().getFullYear()}<br>v1.0 · localStorage</div>
+        <div class="sidebar__footer">${Helpers.escaparHTML(config.nombreNegocio)} © ${new Date().getFullYear()}<br>v1.0 · localStorage</div>
       </aside>
     `;
   }

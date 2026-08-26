@@ -66,14 +66,14 @@ document.addEventListener('DOMContentLoaded', () => {
     Helpers.mostrarToast(`✓ Cierre de caja descargado: ${nombreArchivo}`, 'success');
   });
 
-  document.getElementById('btn-reiniciar-demo').addEventListener('click', () => {
+  document.getElementById('btn-vaciar-datos').addEventListener('click', () => {
     Helpers.confirmarAccion({
-      titulo: 'Reiniciar datos de demostración',
-      mensaje: 'Esto borrará todos los productos, ventas, clientes, proveedores y movimientos actuales, y los reemplazará con los datos de ejemplo originales. Esta acción no se puede deshacer.',
-      textoConfirmar: 'Reiniciar datos',
+      titulo: 'Vaciar todos los datos',
+      mensaje: 'Esto borrará TODOS los productos, ventas, clientes, proveedores y movimientos actuales, dejando el sistema completamente vacío. Recomendado: exporta un respaldo antes de hacer esto. Esta acción no se puede deshacer.',
+      textoConfirmar: 'Vaciar todo',
       onConfirmar: () => {
-        Storage.reiniciarDatosDemo();
-        Helpers.mostrarToast('✓ Datos de demostración reiniciados', 'success');
+        Storage.vaciarTodosLosDatos();
+        Helpers.mostrarToast('✓ El sistema quedó vacío, listo para empezar de nuevo', 'success');
         setTimeout(() => window.location.reload(), 900);
       },
     });
