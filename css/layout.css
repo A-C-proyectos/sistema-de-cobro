@@ -33,8 +33,15 @@
 }
 
 .sidebar__brand-icon {
-  font-size: 1.6rem;
-  line-height: 1;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--primary-light);
+  color: var(--primary-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--fs-lg);
 }
 
 .sidebar__brand-text {
