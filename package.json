@@ -1,0 +1,24 @@
+{
+  "name": "sistema-de-cobro",
+  "version": "1.0.0",
+  "description": "Aplicación web completa de punto de venta (POS) e inventario para una pescadería, construida **100% con HTML5, CSS3 y JavaScript vanilla** (módulos ES6), sin frameworks. Los datos se guardan en el `localStorage` del navegador.",
+  "homepage": "https://github.com/A-C-proyectos/sistema-de-cobro#readme",
+  "bugs": {
+    "url": "https://github.com/A-C-proyectos/sistema-de-cobro/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/A-C-proyectos/sistema-de-cobro.git"
+  },
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "start": "electron .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "electron": "^44.0.0"
+  }
+}
