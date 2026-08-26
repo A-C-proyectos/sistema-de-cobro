@@ -6,7 +6,7 @@
 /* Seguridad: escape de texto para inserción segura en el DOM              */
 /* ---------------------------------------------------------------------- */
 
-export function escaparHTML(texto) {
+function escaparHTML(texto) {
   const div = document.createElement('div');
   div.textContent = texto === undefined || texto === null ? '' : String(texto);
   return div.innerHTML;
@@ -33,7 +33,7 @@ const ICONOS_TOAST = {
   info: 'ℹ',
 };
 
-export function mostrarToast(mensaje, tipo = 'success', duracion = 3200) {
+function mostrarToast(mensaje, tipo = 'success', duracion = 3200) {
   const stack = _obtenerToastStack();
   const toast = document.createElement('div');
   toast.className = `toast toast-${tipo}`;
@@ -50,14 +50,14 @@ export function mostrarToast(mensaje, tipo = 'success', duracion = 3200) {
 /* Modales genéricos                                                       */
 /* ---------------------------------------------------------------------- */
 
-export function abrirModal(idOverlay) {
+function abrirModal(idOverlay) {
   const overlay = document.getElementById(idOverlay);
   if (!overlay) return;
   overlay.classList.add('is-open');
   document.body.style.overflow = 'hidden';
 }
 
-export function cerrarModal(idOverlay) {
+function cerrarModal(idOverlay) {
   const overlay = document.getElementById(idOverlay);
   if (!overlay) return;
   overlay.classList.remove('is-open');
@@ -65,7 +65,7 @@ export function cerrarModal(idOverlay) {
 }
 
 /** Cierra el modal al hacer click en el overlay (fuera del contenido) o en [data-cerrar-modal]. */
-export function inicializarCierreModales() {
+function inicializarCierreModales() {
   document.querySelectorAll('.modal-overlay').forEach((overlay) => {
     overlay.addEventListener('click', (e) => {
       if (e.target === overlay) cerrarModal(overlay.id);
@@ -88,7 +88,7 @@ export function inicializarCierreModales() {
  * Muestra un modal de confirmación genérico y ejecuta el callback si el
  * usuario confirma. Reutiliza el modal #modal-confirmar del layout compartido.
  */
-export function confirmarAccion({ titulo = '¿Estás seguro?', mensaje = 'Esta acción no se puede deshacer.', textoConfirmar = 'Eliminar', onConfirmar }) {
+function confirmarAccion({ titulo = '¿Estás seguro?', mensaje = 'Esta acción no se puede deshacer.', textoConfirmar = 'Eliminar', onConfirmar }) {
   const overlay = document.getElementById('modal-confirmar');
   if (!overlay) {
     if (window.confirm(mensaje)) onConfirmar?.();
@@ -113,7 +113,7 @@ export function confirmarAccion({ titulo = '¿Estás seguro?', mensaje = 'Esta a
 /* Varios                                                                   */
 /* ---------------------------------------------------------------------- */
 
-export function debounce(fn, espera = 250) {
+function debounce(fn, espera = 250) {
   let timeout;
   return (...args) => {
     clearTimeout(timeout);
@@ -121,11 +121,11 @@ export function debounce(fn, espera = 250) {
   };
 }
 
-export function obtenerParametroURL(nombre) {
+function obtenerParametroURL(nombre) {
   return new URLSearchParams(window.location.search).get(nombre);
 }
 
-export function crearElemento(html) {
+function crearElemento(html) {
   const template = document.createElement('template');
   template.innerHTML = html.trim();
   return template.content.firstElementChild;
@@ -135,7 +135,7 @@ export function crearElemento(html) {
  * Descarga contenido de texto como archivo en la PC del usuario
  * (respaldo de datos, comprobantes, cierres de caja, etc.).
  */
-export function descargarArchivo(nombreArchivo, contenido, tipoMime = 'text/plain') {
+function descargarArchivo(nombreArchivo, contenido, tipoMime = 'text/plain') {
   const blob = new Blob([contenido], { type: tipoMime });
   const url = URL.createObjectURL(blob);
   const enlace = document.createElement('a');
@@ -155,7 +155,7 @@ export function descargarArchivo(nombreArchivo, contenido, tipoMime = 'text/plai
  * Verifica si un valor de "imagen" de producto es una foto (data URL)
  * en vez de un icono/emoji.
  */
-export function esImagenDataURL(valor) {
+function esImagenDataURL(valor) {
   return typeof valor === 'string' && valor.startsWith('data:image');
 }
 
@@ -164,7 +164,7 @@ export function esImagenDataURL(valor) {
  * comprime en el navegador (usando <canvas>) y devuelve un data URL listo
  * para guardarse en localStorage sin ocupar demasiado espacio.
  */
-export function redimensionarImagen(archivo, ladoMaximo = 320, calidad = 0.75) {
+function redimensionarImagen(archivo, ladoMaximo = 320, calidad = 0.75) {
   return new Promise((resolve, reject) => {
     if (!archivo || !archivo.type.startsWith('image/')) {
       reject(new Error('Selecciona un archivo de imagen válido (JPG, PNG, WEBP...).'));
@@ -190,3 +190,21 @@ export function redimensionarImagen(archivo, ladoMaximo = 320, calidad = 0.75) {
     lector.readAsDataURL(archivo);
   });
 }
+
+/* ---------------------------------------------------------------------- */
+/* Exposición global (sin módulos ES6, para poder abrir con doble clic)   */
+/* ---------------------------------------------------------------------- */
+window.Helpers = {
+  escaparHTML,
+  mostrarToast,
+  abrirModal,
+  cerrarModal,
+  inicializarCierreModales,
+  confirmarAccion,
+  debounce,
+  obtenerParametroURL,
+  crearElemento,
+  descargarArchivo,
+  esImagenDataURL,
+  redimensionarImagen,
+};

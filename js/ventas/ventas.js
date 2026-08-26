@@ -2,25 +2,19 @@
    ventas.js — página de historial de ventas (pages/ventas.html)
    ========================================================================== */
 
-import { inicializarLayout } from '../components/layout.js';
-import { inicializarModalConfirmar } from '../components/modales.js';
-import { obtenerVentas, obtenerClientes, obtenerConfig } from '../utils/storage.js';
-import { formatearFecha, formatearFechaHora, formatearMoneda, etiquetaMetodoPago, formatearCantidadUnidad, construirTextoRecibo } from '../utils/formatters.js';
-import { mostrarToast, abrirModal, escaparHTML, debounce, inicializarCierreModales, descargarArchivo } from '../utils/helpers.js';
-
 let filtroTexto = '';
 let filtroMetodo = 'todos';
 let filtroFecha = '';
 let ventaActualParaRecibo = null;
 
 document.addEventListener('DOMContentLoaded', () => {
-  inicializarLayout({ activo: 'ventas', titulo: 'Ventas', subtitulo: 'Historial completo de ventas', dentroDePages: true });
-  inicializarModalConfirmar();
-  inicializarCierreModales();
+  Layout.inicializarLayout({ activo: 'ventas', titulo: 'Ventas', subtitulo: 'Historial completo de ventas', dentroDePages: true });
+  Modales.inicializarModalConfirmar();
+  Helpers.inicializarCierreModales();
 
   pintarTabla();
 
-  document.getElementById('buscar').addEventListener('input', debounce((e) => {
+  document.getElementById('buscar').addEventListener('input', Helpers.debounce((e) => {
     filtroTexto = e.target.value.trim().toLowerCase();
     pintarTabla();
   }, 200));
@@ -47,17 +41,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.getElementById('btn-descargar-detalle').addEventListener('click', () => {
     if (!ventaActualParaRecibo) return;
-    const cliente = obtenerClientes().find((c) => c.id === ventaActualParaRecibo.clienteId);
-    const texto = construirTextoRecibo(ventaActualParaRecibo, obtenerConfig(), cliente);
+    const cliente = Storage.obtenerClientes().find((c) => c.id === ventaActualParaRecibo.clienteId);
+    const texto = Formatters.construirTextoRecibo(ventaActualParaRecibo, Storage.obtenerConfig(), cliente);
     const nombreArchivo = `factura-${ventaActualParaRecibo.numero}.txt`;
-    descargarArchivo(nombreArchivo, texto, 'text/plain');
-    mostrarToast(`✓ Factura descargada: ${nombreArchivo}`, 'success');
+    Helpers.descargarArchivo(nombreArchivo, texto, 'text/plain');
+    Helpers.mostrarToast(`✓ Factura descargada: ${nombreArchivo}`, 'success');
   });
 });
 
 function pintarTabla() {
-  const clientes = obtenerClientes();
-  let ventas = obtenerVentas().filter((v) => {
+  const clientes = Storage.obtenerClientes();
+  let ventas = Storage.obtenerVentas().filter((v) => {
     const cliente = clientes.find((c) => c.id === v.clienteId);
     const nombreCliente = cliente ? cliente.nombre.toLowerCase() : 'cliente ocasional';
     const coincideTexto = !filtroTexto || v.numero.includes(filtroTexto) || nombreCliente.includes(filtroTexto);
@@ -68,7 +62,7 @@ function pintarTabla() {
 
   const resumen = document.getElementById('resumen-filtrado');
   const totalFiltrado = ventas.reduce((acc, v) => acc + v.total, 0);
-  resumen.textContent = `${ventas.length} venta(s) · Total: ${formatearMoneda(totalFiltrado)}`;
+  resumen.textContent = `${ventas.length} venta(s) · Total: ${Formatters.formatearMoneda(totalFiltrado)}`;
 
   const tbody = document.getElementById('tabla-ventas');
 
@@ -84,13 +78,13 @@ function pintarTabla() {
       : '<span class="badge badge-warning">Pendiente</span>';
     return `
       <tr>
-        <td class="cell-mono cell-strong">#${escaparHTML(v.numero)}</td>
-        <td>${formatearFecha(v.fecha)}</td>
-        <td class="cell-muted">${formatearFechaHora(v.fecha).split('·')[1] || ''}</td>
-        <td>${escaparHTML(cliente ? cliente.nombre : 'Cliente ocasional')}</td>
-        <td class="cell-muted">${escaparHTML(v.items.map((i) => i.nombre).join(', '))}</td>
-        <td>${etiquetaMetodoPago(v.metodoPago)}</td>
-        <td class="cell-mono cell-strong">${formatearMoneda(v.total)}</td>
+        <td class="cell-mono cell-strong">#${Helpers.escaparHTML(v.numero)}</td>
+        <td>${Formatters.formatearFecha(v.fecha)}</td>
+        <td class="cell-muted">${Formatters.formatearFechaHora(v.fecha).split('·')[1] || ''}</td>
+        <td>${Helpers.escaparHTML(cliente ? cliente.nombre : 'Cliente ocasional')}</td>
+        <td class="cell-muted">${Helpers.escaparHTML(v.items.map((i) => i.nombre).join(', '))}</td>
+        <td>${Formatters.etiquetaMetodoPago(v.metodoPago)}</td>
+        <td class="cell-mono cell-strong">${Formatters.formatearMoneda(v.total)}</td>
         <td>${estadoBadge}</td>
         <td class="cell-actions">
           <button class="btn btn-outline btn-sm btn-detalle" data-id="${v.id}">Ver</button>
@@ -103,47 +97,47 @@ function pintarTabla() {
 }
 
 function _verDetalle(id) {
-  const venta = obtenerVentas().find((v) => v.id === id);
+  const venta = Storage.obtenerVentas().find((v) => v.id === id);
   if (!venta) return;
   ventaActualParaRecibo = venta;
-  const cliente = obtenerClientes().find((c) => c.id === venta.clienteId);
-  const config = obtenerConfig();
+  const cliente = Storage.obtenerClientes().find((c) => c.id === venta.clienteId);
+  const config = Storage.obtenerConfig();
 
   document.getElementById('recibo-contenido').innerHTML = `
-    <div class="receipt-title receipt__center">${escaparHTML(config.nombreNegocio.toUpperCase())}</div>
+    <div class="receipt-title receipt__center">${Helpers.escaparHTML(config.nombreNegocio.toUpperCase())}</div>
     <div class="receipt__center">================================</div>
-    <div class="mt-2 receipt__center">Venta #${escaparHTML(venta.numero)}</div>
+    <div class="mt-2 receipt__center">Venta #${Helpers.escaparHTML(venta.numero)}</div>
     <hr>
-    <div class="receipt-row"><span>Fecha:</span><span>${formatearFechaHora(venta.fecha)}</span></div>
-    <div class="receipt-row"><span>Cliente:</span><span>${escaparHTML(cliente ? cliente.nombre : 'Cliente ocasional')}</span></div>
-    <div class="receipt-row"><span>Cajero:</span><span>${escaparHTML(venta.empleado)}</span></div>
+    <div class="receipt-row"><span>Fecha:</span><span>${Formatters.formatearFechaHora(venta.fecha)}</span></div>
+    <div class="receipt-row"><span>Cliente:</span><span>${Helpers.escaparHTML(cliente ? cliente.nombre : 'Cliente ocasional')}</span></div>
+    <div class="receipt-row"><span>Cajero:</span><span>${Helpers.escaparHTML(venta.empleado)}</span></div>
     <hr>
     <table>
       <thead><tr><td>Producto</td><td style="text-align:center;">Cant.</td><td style="text-align:right;">Total</td></tr></thead>
       <tbody>
         ${venta.items.map((i) => `
           <tr>
-            <td>${escaparHTML(i.nombre)}</td>
-            <td style="text-align:center;">${formatearCantidadUnidad(i.cantidad, i.unidad)}</td>
-            <td style="text-align:right;">${formatearMoneda(i.subtotal)}</td>
+            <td>${Helpers.escaparHTML(i.nombre)}</td>
+            <td style="text-align:center;">${Formatters.formatearCantidadUnidad(i.cantidad, i.unidad)}</td>
+            <td style="text-align:right;">${Formatters.formatearMoneda(i.subtotal)}</td>
           </tr>
         `).join('')}
       </tbody>
     </table>
     <hr>
-    <div class="receipt-row"><span>Subtotal:</span><span>${formatearMoneda(venta.subtotal)}</span></div>
-    <div class="receipt-row"><span>Descuento:</span><span>${formatearMoneda(venta.descuento)}</span></div>
-    <div class="receipt-row"><span>Impuesto:</span><span>${formatearMoneda(venta.impuesto)}</span></div>
-    <div class="receipt-row" style="font-weight:700; font-size:14px;"><span>TOTAL:</span><span>${formatearMoneda(venta.total)}</span></div>
+    <div class="receipt-row"><span>Subtotal:</span><span>${Formatters.formatearMoneda(venta.subtotal)}</span></div>
+    <div class="receipt-row"><span>Descuento:</span><span>${Formatters.formatearMoneda(venta.descuento)}</span></div>
+    <div class="receipt-row"><span>Impuesto:</span><span>${Formatters.formatearMoneda(venta.impuesto)}</span></div>
+    <div class="receipt-row" style="font-weight:700; font-size:14px;"><span>TOTAL:</span><span>${Formatters.formatearMoneda(venta.total)}</span></div>
     <hr>
-    <div class="receipt-row"><span>Método de pago:</span><span>${etiquetaMetodoPago(venta.metodoPago)}</span></div>
+    <div class="receipt-row"><span>Método de pago:</span><span>${Formatters.etiquetaMetodoPago(venta.metodoPago)}</span></div>
     ${venta.metodoPago === 'efectivo' ? `
-      <div class="receipt-row"><span>Recibido:</span><span>${formatearMoneda(venta.efectivoRecibido)}</span></div>
-      <div class="receipt-row"><span>Cambio:</span><span>${formatearMoneda(venta.cambio)}</span></div>
+      <div class="receipt-row"><span>Recibido:</span><span>${Formatters.formatearMoneda(venta.efectivoRecibido)}</span></div>
+      <div class="receipt-row"><span>Cambio:</span><span>${Formatters.formatearMoneda(venta.cambio)}</span></div>
     ` : ''}
     <div class="receipt__center mt-2">================================</div>
     <div class="receipt__center">¡Gracias por su compra!</div>
   `;
 
-  abrirModal('modal-detalle-venta');
+  Helpers.abrirModal('modal-detalle-venta');
 }

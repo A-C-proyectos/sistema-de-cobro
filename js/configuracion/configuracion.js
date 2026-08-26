@@ -2,24 +2,12 @@
    configuracion.js — página de configuración (pages/configuracion.html)
    ========================================================================== */
 
-import { inicializarLayout } from '../components/layout.js';
-import { inicializarModalConfirmar } from '../components/modales.js';
-import {
-  obtenerConfig,
-  guardarConfig,
-  reiniciarDatosDemo,
-  exportarRespaldo,
-  importarRespaldo,
-  generarCierreDeCaja,
-} from '../utils/storage.js';
-import { mostrarToast, confirmarAccion, inicializarCierreModales } from '../utils/helpers.js';
-
 document.addEventListener('DOMContentLoaded', () => {
-  inicializarLayout({ activo: 'configuracion', titulo: 'Configuración', subtitulo: 'Preferencias del sistema', dentroDePages: true });
-  inicializarModalConfirmar();
-  inicializarCierreModales();
+  Layout.inicializarLayout({ activo: 'configuracion', titulo: 'Configuración', subtitulo: 'Preferencias del sistema', dentroDePages: true });
+  Modales.inicializarModalConfirmar();
+  Helpers.inicializarCierreModales();
 
-  const config = obtenerConfig();
+  const config = Storage.obtenerConfig();
   document.getElementById('campo-nombreNegocio').value = config.nombreNegocio;
   document.getElementById('campo-empleadoActual').value = config.empleadoActual;
   document.getElementById('campo-impuestoPorcentaje').value = config.impuestoPorcentaje;
@@ -27,18 +15,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.getElementById('form-configuracion').addEventListener('submit', (e) => {
     e.preventDefault();
-    guardarConfig({
+    Storage.guardarConfig({
       nombreNegocio: document.getElementById('campo-nombreNegocio').value.trim() || 'Pescadería del Mar',
       empleadoActual: document.getElementById('campo-empleadoActual').value.trim() || 'Empleado Demo',
       impuestoPorcentaje: Number(document.getElementById('campo-impuestoPorcentaje').value) || 0,
       moneda: document.getElementById('campo-moneda').value.trim() || 'RD$',
     });
-    mostrarToast('✓ Configuración guardada correctamente', 'success');
+    Helpers.mostrarToast('✓ Configuración guardada correctamente', 'success');
   });
 
   document.getElementById('btn-exportar-respaldo').addEventListener('click', () => {
-    const nombreArchivo = exportarRespaldo();
-    mostrarToast(`✓ Respaldo descargado: ${nombreArchivo}`, 'success');
+    const nombreArchivo = Storage.exportarRespaldo();
+    Helpers.mostrarToast(`✓ Respaldo descargado: ${nombreArchivo}`, 'success');
   });
 
   document.getElementById('btn-importar-respaldo').addEventListener('click', () => {
@@ -49,7 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const archivo = e.target.files[0];
     if (!archivo) return;
 
-    confirmarAccion({
+    Helpers.confirmarAccion({
       titulo: 'Importar respaldo',
       mensaje: `Esto reemplazará todos los datos actuales por el contenido de "${archivo.name}". Esta acción no se puede deshacer.`,
       textoConfirmar: 'Importar y reemplazar',
@@ -58,14 +46,14 @@ document.addEventListener('DOMContentLoaded', () => {
         lector.onload = () => {
           try {
             const objeto = JSON.parse(lector.result);
-            importarRespaldo(objeto);
-            mostrarToast('✓ Respaldo importado correctamente', 'success');
+            Storage.importarRespaldo(objeto);
+            Helpers.mostrarToast('✓ Respaldo importado correctamente', 'success');
             setTimeout(() => window.location.reload(), 900);
           } catch (err) {
-            mostrarToast(err.message || 'No se pudo leer el archivo de respaldo.', 'danger', 5000);
+            Helpers.mostrarToast(err.message || 'No se pudo leer el archivo de respaldo.', 'danger', 5000);
           }
         };
-        lector.onerror = () => mostrarToast('No se pudo leer el archivo seleccionado.', 'danger');
+        lector.onerror = () => Helpers.mostrarToast('No se pudo leer el archivo seleccionado.', 'danger');
         lector.readAsText(archivo);
       },
     });
@@ -74,18 +62,18 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   document.getElementById('btn-cierre-caja').addEventListener('click', () => {
-    const nombreArchivo = generarCierreDeCaja();
-    mostrarToast(`✓ Cierre de caja descargado: ${nombreArchivo}`, 'success');
+    const nombreArchivo = Storage.generarCierreDeCaja();
+    Helpers.mostrarToast(`✓ Cierre de caja descargado: ${nombreArchivo}`, 'success');
   });
 
   document.getElementById('btn-reiniciar-demo').addEventListener('click', () => {
-    confirmarAccion({
+    Helpers.confirmarAccion({
       titulo: 'Reiniciar datos de demostración',
       mensaje: 'Esto borrará todos los productos, ventas, clientes, proveedores y movimientos actuales, y los reemplazará con los datos de ejemplo originales. Esta acción no se puede deshacer.',
       textoConfirmar: 'Reiniciar datos',
       onConfirmar: () => {
-        reiniciarDatosDemo();
-        mostrarToast('✓ Datos de demostración reiniciados', 'success');
+        Storage.reiniciarDatosDemo();
+        Helpers.mostrarToast('✓ Datos de demostración reiniciados', 'success');
         setTimeout(() => window.location.reload(), 900);
       },
     });

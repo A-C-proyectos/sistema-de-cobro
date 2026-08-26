@@ -2,38 +2,26 @@
    app.js — Dashboard principal (index.html)
    ========================================================================== */
 
-import { inicializarLayout } from './components/layout.js';
-import { inicializarModalConfirmar } from './components/modales.js';
-import {
-  asegurarDatosIniciales,
-  obtenerProductos,
-  obtenerVentas,
-  obtenerClientes,
-  generarCierreDeCaja,
-} from './utils/storage.js';
-import { formatearMoneda, formatearFechaHora, etiquetaMetodoPago, formatearCantidadUnidad } from './utils/formatters.js';
-import { mostrarToast, escaparHTML, inicializarCierreModales, esImagenDataURL } from './utils/helpers.js';
-
 document.addEventListener('DOMContentLoaded', () => {
-  asegurarDatosIniciales();
-  inicializarLayout({ activo: 'dashboard', titulo: 'Dashboard', subtitulo: 'Resumen general del negocio' });
-  inicializarModalConfirmar();
-  inicializarCierreModales();
+  Storage.asegurarDatosIniciales();
+  Layout.inicializarLayout({ activo: 'dashboard', titulo: 'Dashboard', subtitulo: 'Resumen general del negocio' });
+  Modales.inicializarModalConfirmar();
+  Helpers.inicializarCierreModales();
 
   pintarEstadisticas();
   pintarVentasRecientes();
   pintarStockBajo();
 
   document.getElementById('btn-cierre-caja-dashboard').addEventListener('click', () => {
-    const nombreArchivo = generarCierreDeCaja();
-    mostrarToast(`✓ Cierre de caja descargado: ${nombreArchivo}`, 'success');
+    const nombreArchivo = Storage.generarCierreDeCaja();
+    Helpers.mostrarToast(`✓ Cierre de caja descargado: ${nombreArchivo}`, 'success');
   });
 });
 
 function pintarEstadisticas() {
-  const productos = obtenerProductos();
-  const ventas = obtenerVentas();
-  const clientes = obtenerClientes();
+  const productos = Storage.obtenerProductos();
+  const ventas = Storage.obtenerVentas();
+  const clientes = Storage.obtenerClientes();
 
   const hoy = new Date().toDateString();
   const ventasHoy = ventas.filter((v) => new Date(v.fecha).toDateString() === hoy);
@@ -52,12 +40,12 @@ function pintarEstadisticas() {
   }, 0);
 
   const tarjetas = [
-    { label: 'Ventas del día', valor: formatearMoneda(totalVentasHoy), icono: '💵', color: 'var(--primary-color)' },
+    { label: 'Ventas del día', valor: Formatters.formatearMoneda(totalVentasHoy), icono: '💵', color: 'var(--primary-color)' },
     { label: 'N.º de ventas hoy', valor: ventasHoy.length, icono: '🧾', color: 'var(--info-color)' },
     { label: 'Productos disponibles', valor: productos.filter((p) => p.stock > 0).length, icono: '📦', color: 'var(--success-color)' },
     { label: 'Stock bajo', valor: stockBajo, icono: '⚠️', color: 'var(--warning-color)' },
     { label: 'Agotados', valor: agotados, icono: '⛔', color: 'var(--danger-color)' },
-    { label: 'Ganancia estimada', valor: formatearMoneda(gananciaEstimada), icono: '📈', color: 'var(--primary-color)' },
+    { label: 'Ganancia estimada', valor: Formatters.formatearMoneda(gananciaEstimada), icono: '📈', color: 'var(--primary-color)' },
     { label: 'Clientes registrados', valor: clientes.length, icono: '👥', color: 'var(--info-color)' },
   ];
 
@@ -72,8 +60,8 @@ function pintarEstadisticas() {
 }
 
 function pintarVentasRecientes() {
-  const ventas = obtenerVentas().slice(0, 8);
-  const clientes = obtenerClientes();
+  const ventas = Storage.obtenerVentas().slice(0, 8);
+  const clientes = Storage.obtenerClientes();
   const tbody = document.getElementById('tabla-ventas-recientes');
 
   if (ventas.length === 0) {
@@ -88,12 +76,12 @@ function pintarVentasRecientes() {
       : '<span class="badge badge-warning">Pendiente</span>';
     return `
       <tr>
-        <td class="cell-mono">#${escaparHTML(v.numero)}</td>
-        <td>${formatearFechaHora(v.fecha)}</td>
-        <td>${escaparHTML(cliente ? cliente.nombre : 'Cliente ocasional')}</td>
-        <td>${escaparHTML(v.empleado)}</td>
-        <td>${etiquetaMetodoPago(v.metodoPago)}</td>
-        <td class="cell-mono cell-strong">${formatearMoneda(v.total)}</td>
+        <td class="cell-mono">#${Helpers.escaparHTML(v.numero)}</td>
+        <td>${Formatters.formatearFechaHora(v.fecha)}</td>
+        <td>${Helpers.escaparHTML(cliente ? cliente.nombre : 'Cliente ocasional')}</td>
+        <td>${Helpers.escaparHTML(v.empleado)}</td>
+        <td>${Formatters.etiquetaMetodoPago(v.metodoPago)}</td>
+        <td class="cell-mono cell-strong">${Formatters.formatearMoneda(v.total)}</td>
         <td>${estadoBadge}</td>
       </tr>
     `;
@@ -101,7 +89,7 @@ function pintarVentasRecientes() {
 }
 
 function pintarStockBajo() {
-  const productos = obtenerProductos()
+  const productos = Storage.obtenerProductos()
     .filter((p) => p.stock <= p.stockMinimo)
     .sort((a, b) => a.stock - b.stock);
   const tbody = document.getElementById('tabla-stock-bajo');
@@ -117,9 +105,9 @@ function pintarStockBajo() {
       : '<span class="badge badge-warning">Stock bajo</span>';
     return `
       <tr>
-        <td class="cell-strong">${esImagenDataURL(p.imagen) ? `<img src="${p.imagen}" alt="" style="width:20px;height:20px;object-fit:cover;border-radius:4px;vertical-align:middle;margin-right:4px;">` : escaparHTML(p.imagen) + ' '}${escaparHTML(p.nombre)}</td>
-        <td class="cell-mono">${formatearCantidadUnidad(p.stock, p.unidad)}</td>
-        <td class="cell-mono cell-muted">${formatearCantidadUnidad(p.stockMinimo, p.unidad)}</td>
+        <td class="cell-strong">${Helpers.esImagenDataURL(p.imagen) ? `<img src="${p.imagen}" alt="" style="width:20px;height:20px;object-fit:cover;border-radius:4px;vertical-align:middle;margin-right:4px;">` : Helpers.escaparHTML(p.imagen) + ' '}${Helpers.escaparHTML(p.nombre)}</td>
+        <td class="cell-mono">${Formatters.formatearCantidadUnidad(p.stock, p.unidad)}</td>
+        <td class="cell-mono cell-muted">${Formatters.formatearCantidadUnidad(p.stockMinimo, p.unidad)}</td>
         <td>${estado}</td>
       </tr>
     `;

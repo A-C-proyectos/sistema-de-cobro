@@ -7,15 +7,15 @@ let clienteId = '';
 let descuentoManual = 0; // monto fijo de descuento aplicado por el cajero
 let impuestoPorcentaje = 0;
 
-export function obtenerItems() {
+function obtenerItems() {
   return items;
 }
 
-export function establecerImpuesto(porcentaje) {
+function establecerImpuesto(porcentaje) {
   impuestoPorcentaje = Number(porcentaje) || 0;
 }
 
-export function agregarItem(producto, cantidad = 1) {
+function agregarItem(producto, cantidad = 1) {
   const existente = items.find((i) => i.productoId === producto.id);
   if (existente) {
     existente.cantidad = Math.round((existente.cantidad + cantidad) * 1000) / 1000;
@@ -31,40 +31,40 @@ export function agregarItem(producto, cantidad = 1) {
   }
 }
 
-export function actualizarCantidad(productoId, cantidad) {
+function actualizarCantidad(productoId, cantidad) {
   const item = items.find((i) => i.productoId === productoId);
   if (!item) return;
   item.cantidad = Math.max(0, Math.round(cantidad * 1000) / 1000);
   if (item.cantidad === 0) eliminarItem(productoId);
 }
 
-export function eliminarItem(productoId) {
+function eliminarItem(productoId) {
   items = items.filter((i) => i.productoId !== productoId);
 }
 
-export function vaciarCarrito() {
+function vaciarCarrito() {
   items = [];
   clienteId = '';
   descuentoManual = 0;
 }
 
-export function establecerCliente(id) {
+function establecerCliente(id) {
   clienteId = id;
 }
 
-export function obtenerCliente() {
+function obtenerCliente() {
   return clienteId;
 }
 
-export function establecerDescuento(monto) {
+function establecerDescuento(monto) {
   descuentoManual = Math.max(0, Number(monto) || 0);
 }
 
-export function obtenerDescuento() {
+function obtenerDescuento() {
   return descuentoManual;
 }
 
-export function calcularTotales() {
+function calcularTotales() {
   const subtotal = items.reduce((acc, i) => acc + i.precioUnitario * i.cantidad, 0);
   const descuento = Math.min(descuentoManual, subtotal);
   const baseImpuesto = subtotal - descuento;
@@ -78,6 +78,21 @@ export function calcularTotales() {
   };
 }
 
-export function carritoVacio() {
+function carritoVacio() {
   return items.length === 0;
 }
+
+window.Carrito = {
+  obtenerItems,
+  establecerImpuesto,
+  agregarItem,
+  actualizarCantidad,
+  eliminarItem,
+  vaciarCarrito,
+  establecerCliente,
+  obtenerCliente,
+  establecerDescuento,
+  obtenerDescuento,
+  calcularTotales,
+  carritoVacio,
+};

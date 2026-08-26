@@ -8,7 +8,7 @@
    que tocar el resto del código (ver services más abajo).
    ========================================================================== */
 
-import { descargarArchivo } from './helpers.js';
+// descargarArchivo se toma de window.Helpers (helpers.js debe cargarse antes que storage.js)
 
 const DB_PREFIX = 'pescaderia_';
 const KEYS = {
@@ -59,15 +59,15 @@ function _generarId(prefijo, lista) {
 /* PRODUCTOS                                                              */
 /* ---------------------------------------------------------------------- */
 
-export function obtenerProductos() {
+function obtenerProductos() {
   return _leer(KEYS.PRODUCTOS);
 }
 
-export function obtenerProductoPorId(id) {
+function obtenerProductoPorId(id) {
   return obtenerProductos().find((p) => p.id === id) || null;
 }
 
-export function guardarProducto(producto) {
+function guardarProducto(producto) {
   const productos = obtenerProductos();
   const nuevo = { ...producto, id: producto.id || _generarId('PRD', productos) };
   productos.push(nuevo);
@@ -75,7 +75,7 @@ export function guardarProducto(producto) {
   return nuevo;
 }
 
-export function actualizarProducto(id, cambios) {
+function actualizarProducto(id, cambios) {
   const productos = obtenerProductos();
   const idx = productos.findIndex((p) => p.id === id);
   if (idx === -1) return null;
@@ -84,12 +84,12 @@ export function actualizarProducto(id, cambios) {
   return productos[idx];
 }
 
-export function eliminarProducto(id) {
+function eliminarProducto(id) {
   const productos = obtenerProductos().filter((p) => p.id !== id);
   return _escribir(KEYS.PRODUCTOS, productos);
 }
 
-export function ajustarStockProducto(id, delta) {
+function ajustarStockProducto(id, delta) {
   const producto = obtenerProductoPorId(id);
   if (!producto) return null;
   const nuevoStock = Math.max(0, Math.round((producto.stock + delta) * 1000) / 1000);
@@ -100,15 +100,15 @@ export function ajustarStockProducto(id, delta) {
 /* CLIENTES                                                                */
 /* ---------------------------------------------------------------------- */
 
-export function obtenerClientes() {
+function obtenerClientes() {
   return _leer(KEYS.CLIENTES);
 }
 
-export function obtenerClientePorId(id) {
+function obtenerClientePorId(id) {
   return obtenerClientes().find((c) => c.id === id) || null;
 }
 
-export function guardarCliente(cliente) {
+function guardarCliente(cliente) {
   const clientes = obtenerClientes();
   const nuevo = {
     ...cliente,
@@ -120,7 +120,7 @@ export function guardarCliente(cliente) {
   return nuevo;
 }
 
-export function actualizarCliente(id, cambios) {
+function actualizarCliente(id, cambios) {
   const clientes = obtenerClientes();
   const idx = clientes.findIndex((c) => c.id === id);
   if (idx === -1) return null;
@@ -129,7 +129,7 @@ export function actualizarCliente(id, cambios) {
   return clientes[idx];
 }
 
-export function eliminarCliente(id) {
+function eliminarCliente(id) {
   const clientes = obtenerClientes().filter((c) => c.id !== id);
   return _escribir(KEYS.CLIENTES, clientes);
 }
@@ -138,15 +138,15 @@ export function eliminarCliente(id) {
 /* PROVEEDORES                                                            */
 /* ---------------------------------------------------------------------- */
 
-export function obtenerProveedores() {
+function obtenerProveedores() {
   return _leer(KEYS.PROVEEDORES);
 }
 
-export function obtenerProveedorPorId(id) {
+function obtenerProveedorPorId(id) {
   return obtenerProveedores().find((p) => p.id === id) || null;
 }
 
-export function guardarProveedor(proveedor) {
+function guardarProveedor(proveedor) {
   const proveedores = obtenerProveedores();
   const nuevo = { ...proveedor, id: proveedor.id || _generarId('PRV', proveedores) };
   proveedores.push(nuevo);
@@ -154,7 +154,7 @@ export function guardarProveedor(proveedor) {
   return nuevo;
 }
 
-export function actualizarProveedor(id, cambios) {
+function actualizarProveedor(id, cambios) {
   const proveedores = obtenerProveedores();
   const idx = proveedores.findIndex((p) => p.id === id);
   if (idx === -1) return null;
@@ -163,7 +163,7 @@ export function actualizarProveedor(id, cambios) {
   return proveedores[idx];
 }
 
-export function eliminarProveedor(id) {
+function eliminarProveedor(id) {
   const proveedores = obtenerProveedores().filter((p) => p.id !== id);
   return _escribir(KEYS.PROVEEDORES, proveedores);
 }
@@ -172,15 +172,15 @@ export function eliminarProveedor(id) {
 /* VENTAS                                                                  */
 /* ---------------------------------------------------------------------- */
 
-export function obtenerVentas() {
+function obtenerVentas() {
   return _leer(KEYS.VENTAS);
 }
 
-export function obtenerVentaPorId(id) {
+function obtenerVentaPorId(id) {
   return obtenerVentas().find((v) => v.id === id) || null;
 }
 
-export function guardarVenta(venta) {
+function guardarVenta(venta) {
   const ventas = obtenerVentas();
   const numero = ventas.length + 1;
   const nueva = {
@@ -194,7 +194,7 @@ export function guardarVenta(venta) {
   return nueva;
 }
 
-export function actualizarVenta(id, cambios) {
+function actualizarVenta(id, cambios) {
   const ventas = obtenerVentas();
   const idx = ventas.findIndex((v) => v.id === id);
   if (idx === -1) return null;
@@ -207,11 +207,11 @@ export function actualizarVenta(id, cambios) {
 /* MOVIMIENTOS DE INVENTARIO                                              */
 /* ---------------------------------------------------------------------- */
 
-export function obtenerMovimientos() {
+function obtenerMovimientos() {
   return _leer(KEYS.MOVIMIENTOS);
 }
 
-export function guardarMovimiento(movimiento) {
+function guardarMovimiento(movimiento) {
   const movimientos = obtenerMovimientos();
   const nuevo = {
     ...movimiento,
@@ -227,7 +227,7 @@ export function guardarMovimiento(movimiento) {
 /* CONFIGURACIÓN                                                          */
 /* ---------------------------------------------------------------------- */
 
-export function obtenerConfig() {
+function obtenerConfig() {
   return _leer(KEYS.CONFIG, {
     nombreNegocio: 'Pescadería del Mar',
     empleadoActual: 'Empleado Demo',
@@ -236,7 +236,7 @@ export function obtenerConfig() {
   });
 }
 
-export function guardarConfig(config) {
+function guardarConfig(config) {
   _escribir(KEYS.CONFIG, { ...obtenerConfig(), ...config });
   return obtenerConfig();
 }
@@ -245,21 +245,23 @@ export function guardarConfig(config) {
 /* RESET / SEED DE DATOS DE DEMOSTRACIÓN                                  */
 /* ---------------------------------------------------------------------- */
 
-export function limpiarTodo() {
+function limpiarTodo() {
   Object.values(KEYS).forEach((k) => localStorage.removeItem(k));
 }
 
-export function reiniciarDatosDemo() {
+function reiniciarDatosDemo() {
   limpiarTodo();
   _sembrarDatos();
-  _escribir(KEYS.SEED_VERSION, SEED_VERSION);
+  localStorage.setItem(KEYS.SEED_VERSION, SEED_VERSION);
 }
 
-export function asegurarDatosIniciales() {
+function asegurarDatosIniciales() {
+  // OJO: esta bandera se guarda con localStorage.setItem plano (no _escribir/JSON),
+  // para poder compararla directo contra SEED_VERSION sin desajustes de formato.
   const version = localStorage.getItem(KEYS.SEED_VERSION);
   if (version !== SEED_VERSION) {
     _sembrarDatos();
-    _escribir(KEYS.SEED_VERSION, SEED_VERSION);
+    localStorage.setItem(KEYS.SEED_VERSION, SEED_VERSION);
   }
 }
 
@@ -271,7 +273,7 @@ export function asegurarDatosIniciales() {
  * Reúne todos los datos del sistema en un solo objeto, listo para
  * descargarse como archivo .json (respaldo completo).
  */
-export function construirRespaldoCompleto() {
+function construirRespaldoCompleto() {
   return {
     tipo: 'respaldo_pescaderia_pos',
     version: SEED_VERSION,
@@ -290,10 +292,10 @@ export function construirRespaldoCompleto() {
 /**
  * Descarga el respaldo completo como archivo .json en la PC del usuario.
  */
-export function exportarRespaldo() {
+function exportarRespaldo() {
   const respaldo = construirRespaldoCompleto();
   const nombreArchivo = `respaldo-pescaderia-${new Date().toISOString().slice(0, 10)}.json`;
-  descargarArchivo(nombreArchivo, JSON.stringify(respaldo, null, 2), 'application/json');
+  Helpers.descargarArchivo(nombreArchivo, JSON.stringify(respaldo, null, 2), 'application/json');
   return nombreArchivo;
 }
 
@@ -301,7 +303,7 @@ export function exportarRespaldo() {
  * Restaura todos los datos del sistema a partir de un objeto de respaldo
  * previamente generado por exportarRespaldo(). Sobrescribe los datos actuales.
  */
-export function importarRespaldo(objetoRespaldo) {
+function importarRespaldo(objetoRespaldo) {
   if (!objetoRespaldo || objetoRespaldo.tipo !== 'respaldo_pescaderia_pos' || !objetoRespaldo.datos) {
     throw new Error('El archivo seleccionado no es un respaldo válido de Pescadería del Mar POS.');
   }
@@ -312,7 +314,7 @@ export function importarRespaldo(objetoRespaldo) {
   _escribir(KEYS.VENTAS, ventas || []);
   _escribir(KEYS.MOVIMIENTOS, movimientos || []);
   _escribir(KEYS.CONFIG, config || obtenerConfig());
-  _escribir(KEYS.SEED_VERSION, SEED_VERSION);
+  localStorage.setItem(KEYS.SEED_VERSION, SEED_VERSION);
   return true;
 }
 
@@ -321,7 +323,7 @@ export function importarRespaldo(objetoRespaldo) {
  * método de pago e inventario completo al momento del cierre. Se descarga
  * como archivo de texto plano, fácil de abrir e imprimir en cualquier PC.
  */
-export function generarCierreDeCaja() {
+function generarCierreDeCaja() {
   const config = obtenerConfig();
   const productos = obtenerProductos();
   const hoy = new Date();
@@ -363,7 +365,7 @@ export function generarCierreDeCaja() {
   texto += `${linea}\nFin del reporte de cierre.\n`;
 
   const nombreArchivo = `cierre-caja-${hoy.toISOString().slice(0, 10)}.txt`;
-  descargarArchivo(nombreArchivo, texto, 'text/plain');
+  Helpers.descargarArchivo(nombreArchivo, texto, 'text/plain');
   return nombreArchivo;
 }
 
@@ -509,3 +511,37 @@ function _sembrarDatos() {
   _escribir(KEYS.VENTAS, ventas.sort((a, b) => new Date(b.fecha) - new Date(a.fecha)));
   _escribir(KEYS.MOVIMIENTOS, movimientos.sort((a, b) => new Date(b.fecha) - new Date(a.fecha)));
 }
+
+window.Storage = {
+  obtenerProductos,
+  obtenerProductoPorId,
+  guardarProducto,
+  actualizarProducto,
+  eliminarProducto,
+  ajustarStockProducto,
+  obtenerClientes,
+  obtenerClientePorId,
+  guardarCliente,
+  actualizarCliente,
+  eliminarCliente,
+  obtenerProveedores,
+  obtenerProveedorPorId,
+  guardarProveedor,
+  actualizarProveedor,
+  eliminarProveedor,
+  obtenerVentas,
+  obtenerVentaPorId,
+  guardarVenta,
+  actualizarVenta,
+  obtenerMovimientos,
+  guardarMovimiento,
+  obtenerConfig,
+  guardarConfig,
+  limpiarTodo,
+  reiniciarDatosDemo,
+  asegurarDatosIniciales,
+  construirRespaldoCompleto,
+  exportarRespaldo,
+  importarRespaldo,
+  generarCierreDeCaja,
+};

@@ -2,7 +2,7 @@
    components/modales.js — modal de confirmación reutilizable
    ========================================================================== */
 
-export function inicializarModalConfirmar() {
+function inicializarModalConfirmar() {
   const slot = document.getElementById('modales-slot');
   if (!slot) return;
   slot.insertAdjacentHTML('beforeend', `
@@ -21,3 +21,5 @@ export function inicializarModalConfirmar() {
     </div>
   `);
 }
+
+window.Modales = { inicializarModalConfirmar };

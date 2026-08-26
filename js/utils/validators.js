@@ -2,26 +2,26 @@
    validators.js — validaciones de formularios y reglas de negocio
    ========================================================================== */
 
-export function esTextoValido(texto, minLen = 1) {
+function esTextoValido(texto, minLen = 1) {
   return typeof texto === 'string' && texto.trim().length >= minLen;
 }
 
-export function esNumeroPositivo(valor) {
+function esNumeroPositivo(valor) {
   const n = Number(valor);
   return Number.isFinite(n) && n > 0;
 }
 
-export function esNumeroNoNegativo(valor) {
+function esNumeroNoNegativo(valor) {
   const n = Number(valor);
   return Number.isFinite(n) && n >= 0;
 }
 
-export function esCorreoValido(correo) {
+function esCorreoValido(correo) {
   if (!correo) return true; // correo es opcional en varios formularios
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo);
 }
 
-export function esTelefonoValido(telefono) {
+function esTelefonoValido(telefono) {
   if (!telefono) return true;
   return /^[0-9()+\-\s]{7,}$/.test(telefono);
 }
@@ -30,7 +30,7 @@ export function esTelefonoValido(telefono) {
  * Valida un producto antes de guardarlo/actualizarlo.
  * Devuelve un objeto { valido, errores } donde errores es { campo: mensaje }.
  */
-export function validarProducto(producto) {
+function validarProducto(producto) {
   const errores = {};
   if (!esTextoValido(producto.nombre)) errores.nombre = 'El nombre del producto es obligatorio.';
   if (!esTextoValido(producto.categoria)) errores.categoria = 'Selecciona una categoría.';
@@ -42,7 +42,7 @@ export function validarProducto(producto) {
   return { valido: Object.keys(errores).length === 0, errores };
 }
 
-export function validarCliente(cliente) {
+function validarCliente(cliente) {
   const errores = {};
   if (!esTextoValido(cliente.nombre)) errores.nombre = 'El nombre del cliente es obligatorio.';
   if (!esCorreoValido(cliente.correo)) errores.correo = 'El correo no tiene un formato válido.';
@@ -50,7 +50,7 @@ export function validarCliente(cliente) {
   return { valido: Object.keys(errores).length === 0, errores };
 }
 
-export function validarProveedor(proveedor) {
+function validarProveedor(proveedor) {
   const errores = {};
   if (!esTextoValido(proveedor.empresa)) errores.empresa = 'El nombre de la empresa es obligatorio.';
   if (!esTextoValido(proveedor.contacto)) errores.contacto = 'El nombre de contacto es obligatorio.';
@@ -59,7 +59,7 @@ export function validarProveedor(proveedor) {
   return { valido: Object.keys(errores).length === 0, errores };
 }
 
-export function validarMovimiento(movimiento) {
+function validarMovimiento(movimiento) {
   const errores = {};
   if (!esTextoValido(movimiento.productoId)) errores.productoId = 'Selecciona un producto.';
   if (!esNumeroPositivo(movimiento.cantidad)) errores.cantidad = 'La cantidad debe ser mayor que cero.';
@@ -71,7 +71,7 @@ export function validarMovimiento(movimiento) {
 /**
  * Verifica que haya stock suficiente para vender/retirar una cantidad.
  */
-export function validarStockDisponible(stockActual, cantidadSolicitada) {
+function validarStockDisponible(stockActual, cantidadSolicitada) {
   if (cantidadSolicitada > stockActual) {
     return {
       valido: false,
@@ -81,7 +81,7 @@ export function validarStockDisponible(stockActual, cantidadSolicitada) {
   return { valido: true, mensaje: '' };
 }
 
-export function validarEfectivoSuficiente(total, efectivoRecibido) {
+function validarEfectivoSuficiente(total, efectivoRecibido) {
   return Number(efectivoRecibido) >= Number(total);
 }
 
@@ -90,7 +90,7 @@ export function validarEfectivoSuficiente(total, efectivoRecibido) {
  * Espera que cada campo tenga un input con id "campo-<nombre>" y un
  * elemento .field-error con id "error-<nombre>".
  */
-export function aplicarErroresFormulario(errores, prefijo = '') {
+function aplicarErroresFormulario(errores, prefijo = '') {
   document.querySelectorAll(`[id^="${prefijo}error-"]`).forEach((el) => {
     el.textContent = '';
     el.classList.remove('show');
@@ -109,3 +109,18 @@ export function aplicarErroresFormulario(errores, prefijo = '') {
     if (inputEl) inputEl.classList.add('has-error');
   });
 }
+
+window.Validators = {
+  esTextoValido,
+  esNumeroPositivo,
+  esNumeroNoNegativo,
+  esCorreoValido,
+  esTelefonoValido,
+  validarProducto,
+  validarCliente,
+  validarProveedor,
+  validarMovimiento,
+  validarStockDisponible,
+  validarEfectivoSuficiente,
+  aplicarErroresFormulario,
+};

@@ -6,14 +6,11 @@
    evitando duplicar ese markup en cada archivo .html.
    ========================================================================== */
 
-import { RUTAS, resolverHref } from '../router.js';
-import { obtenerProductos, obtenerConfig } from '../utils/storage.js';
-import { escaparHTML } from '../utils/helpers.js';
-
-export function inicializarLayout({ activo, titulo, subtitulo = '', dentroDePages = false }) {
+function inicializarLayout({ activo, titulo, subtitulo = '', dentroDePages = false }) {
+  Storage.asegurarDatosIniciales();
   const sidebarSlot = document.getElementById('sidebar-slot');
   const topbarSlot = document.getElementById('topbar-slot');
-  const config = obtenerConfig();
+  const config = Storage.obtenerConfig();
 
   if (sidebarSlot) {
     sidebarSlot.innerHTML = `
@@ -21,11 +18,11 @@ export function inicializarLayout({ activo, titulo, subtitulo = '', dentroDePage
       <aside class="sidebar" id="sidebar">
         <div class="sidebar__brand">
           <span class="sidebar__brand-icon">🐟</span>
-          <span class="sidebar__brand-text">${escaparHTML(config.nombreNegocio)}<small>Sistema POS</small></span>
+          <span class="sidebar__brand-text">${Helpers.escaparHTML(config.nombreNegocio)}<small>Sistema POS</small></span>
         </div>
         <nav class="sidebar__nav">
-          ${RUTAS.map((ruta) => `
-            <a class="sidebar__link ${ruta.id === activo ? 'is-active' : ''}" href="${resolverHref(ruta.href, dentroDePages)}">
+          ${Router.RUTAS.map((ruta) => `
+            <a class="sidebar__link ${ruta.id === activo ? 'is-active' : ''}" href="${Router.resolverHref(ruta.href, dentroDePages)}">
               <span class="icon">${ruta.icono}</span>
               <span>${ruta.nombre}</span>
             </a>
@@ -37,8 +34,8 @@ export function inicializarLayout({ activo, titulo, subtitulo = '', dentroDePage
   }
 
   if (topbarSlot) {
-    const stockBajo = obtenerProductos().filter((p) => p.stock > 0 && p.stock <= p.stockMinimo).length;
-    const agotados = obtenerProductos().filter((p) => p.stock === 0).length;
+    const stockBajo = Storage.obtenerProductos().filter((p) => p.stock > 0 && p.stock <= p.stockMinimo).length;
+    const agotados = Storage.obtenerProductos().filter((p) => p.stock === 0).length;
     const alertas = stockBajo + agotados;
     const iniciales = (config.empleadoActual || 'E D').split(' ').map((s) => s[0]).slice(0, 2).join('').toUpperCase();
 
@@ -46,7 +43,7 @@ export function inicializarLayout({ activo, titulo, subtitulo = '', dentroDePage
       <header class="topbar">
         <div class="flex items-center">
           <button class="menu-toggle" id="menu-toggle" aria-label="Abrir menú">☰</button>
-          <div class="topbar__title">${escaparHTML(titulo)}${subtitulo ? `<span>${escaparHTML(subtitulo)}</span>` : ''}</div>
+          <div class="topbar__title">${Helpers.escaparHTML(titulo)}${subtitulo ? `<span>${Helpers.escaparHTML(subtitulo)}</span>` : ''}</div>
         </div>
         <div class="topbar__actions">
           <div class="topbar__clock" id="topbar-clock"></div>
@@ -55,9 +52,9 @@ export function inicializarLayout({ activo, titulo, subtitulo = '', dentroDePage
             ${alertas > 0 ? `<span class="icon-btn__badge">${alertas}</span>` : ''}
           </button>
           <div class="topbar__user">
-            <div class="topbar__user-avatar">${escaparHTML(iniciales || 'ED')}</div>
+            <div class="topbar__user-avatar">${Helpers.escaparHTML(iniciales || 'ED')}</div>
             <div>
-              <div class="topbar__user-name">${escaparHTML(config.empleadoActual)}</div>
+              <div class="topbar__user-name">${Helpers.escaparHTML(config.empleadoActual)}</div>
               <div class="topbar__user-role">Cajero(a)</div>
             </div>
           </div>
@@ -75,16 +72,14 @@ export function inicializarLayout({ activo, titulo, subtitulo = '', dentroDePage
   const btnLogout = document.getElementById('btn-logout');
   if (btnLogout) {
     btnLogout.addEventListener('click', () => {
-      import('../utils/helpers.js').then(({ mostrarToast }) => {
-        mostrarToast('Sesión cerrada (modo demostración)', 'info');
-      });
+      Helpers.mostrarToast('Sesión cerrada (modo demostración)', 'info');
     });
   }
 }
 
 function _resaltarActivo(activo) {
   document.querySelectorAll('.sidebar__link').forEach((link) => {
-    const ruta = RUTAS.find((r) => link.href.endsWith(r.href.replace('pages/', '')) || link.href.endsWith(r.href));
+    const ruta = Router.RUTAS.find((r) => link.href.endsWith(r.href.replace('pages/', '')) || link.href.endsWith(r.href));
     if (ruta && ruta.id === activo) link.classList.add('is-active');
   });
 }
@@ -116,14 +111,14 @@ function _inicializarNotificaciones() {
   const btn = document.getElementById('btn-notificaciones');
   if (!btn) return;
   btn.addEventListener('click', () => {
-    const productos = obtenerProductos();
+    const productos = Storage.obtenerProductos();
     const criticos = productos.filter((p) => p.stock <= p.stockMinimo);
-    import('../utils/helpers.js').then(({ mostrarToast }) => {
-      if (criticos.length === 0) {
-        mostrarToast('No hay alertas de inventario por ahora.', 'success');
-      } else {
-        mostrarToast(`${criticos.length} producto(s) con stock bajo o agotado.`, 'warning');
-      }
-    });
+    if (criticos.length === 0) {
+      Helpers.mostrarToast('No hay alertas de inventario por ahora.', 'success');
+    } else {
+      Helpers.mostrarToast(`${criticos.length} producto(s) con stock bajo o agotado.`, 'warning');
+    }
   });
 }
+
+window.Layout = { inicializarLayout };

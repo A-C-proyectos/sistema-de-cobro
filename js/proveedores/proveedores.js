@@ -2,30 +2,17 @@
    proveedores.js — página de gestión de proveedores (pages/proveedores.html)
    ========================================================================== */
 
-import { inicializarLayout } from '../components/layout.js';
-import { inicializarModalConfirmar } from '../components/modales.js';
-import {
-  obtenerProveedores,
-  guardarProveedor,
-  actualizarProveedor,
-  eliminarProveedor,
-  obtenerProductos,
-} from '../utils/storage.js';
-import { validarProveedor, aplicarErroresFormulario } from '../utils/validators.js';
-import { formatearMoneda, formatearCantidadUnidad } from '../utils/formatters.js';
-import { mostrarToast, abrirModal, cerrarModal, confirmarAccion, escaparHTML, debounce, inicializarCierreModales, esImagenDataURL } from '../utils/helpers.js';
-
 let filtroTexto = '';
 let editandoId = null;
 
 document.addEventListener('DOMContentLoaded', () => {
-  inicializarLayout({ activo: 'proveedores', titulo: 'Proveedores', subtitulo: 'Directorio de suplidores', dentroDePages: true });
-  inicializarModalConfirmar();
-  inicializarCierreModales();
+  Layout.inicializarLayout({ activo: 'proveedores', titulo: 'Proveedores', subtitulo: 'Directorio de suplidores', dentroDePages: true });
+  Modales.inicializarModalConfirmar();
+  Helpers.inicializarCierreModales();
 
   pintarTabla();
 
-  document.getElementById('buscar').addEventListener('input', debounce((e) => {
+  document.getElementById('buscar').addEventListener('input', Helpers.debounce((e) => {
     filtroTexto = e.target.value.trim().toLowerCase();
     pintarTabla();
   }, 200));
@@ -35,10 +22,10 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function pintarTabla() {
-  const proveedores = obtenerProveedores().filter((p) =>
+  const proveedores = Storage.obtenerProveedores().filter((p) =>
     !filtroTexto || p.empresa.toLowerCase().includes(filtroTexto) || (p.contacto || '').toLowerCase().includes(filtroTexto)
   );
-  const productos = obtenerProductos();
+  const productos = Storage.obtenerProductos();
   const tbody = document.getElementById('tabla-proveedores');
 
   if (proveedores.length === 0) {
@@ -50,10 +37,10 @@ function pintarTabla() {
     const nProductos = productos.filter((prod) => prod.proveedorId === p.id).length;
     return `
       <tr>
-        <td class="cell-strong">${escaparHTML(p.empresa)}</td>
-        <td>${escaparHTML(p.contacto)}</td>
-        <td class="cell-mono">${escaparHTML(p.telefono || '—')}</td>
-        <td class="cell-muted">${escaparHTML(p.correo || '—')}</td>
+        <td class="cell-strong">${Helpers.escaparHTML(p.empresa)}</td>
+        <td>${Helpers.escaparHTML(p.contacto)}</td>
+        <td class="cell-mono">${Helpers.escaparHTML(p.telefono || '—')}</td>
+        <td class="cell-muted">${Helpers.escaparHTML(p.correo || '—')}</td>
         <td><span class="badge badge-info">${nProductos} producto(s)</span></td>
         <td class="cell-actions">
           <button class="btn btn-outline btn-sm btn-ver" data-id="${p.id}">Ver productos</button>
@@ -73,11 +60,11 @@ function _abrirFormulario(id = null) {
   editandoId = id;
   const form = document.getElementById('form-proveedor');
   form.reset();
-  aplicarErroresFormulario({});
+  Validators.aplicarErroresFormulario({});
   document.getElementById('titulo-modal-proveedor').textContent = id ? 'Editar proveedor' : 'Nuevo proveedor';
 
   if (id) {
-    const proveedor = obtenerProveedores().find((p) => p.id === id);
+    const proveedor = Storage.obtenerProveedores().find((p) => p.id === id);
     if (!proveedor) return;
     document.getElementById('campo-empresa').value = proveedor.empresa;
     document.getElementById('campo-contacto').value = proveedor.contacto;
@@ -86,7 +73,7 @@ function _abrirFormulario(id = null) {
     document.getElementById('campo-direccion').value = proveedor.direccion || '';
   }
 
-  abrirModal('modal-proveedor');
+  Helpers.abrirModal('modal-proveedor');
 }
 
 function _guardarFormulario(e) {
@@ -100,41 +87,41 @@ function _guardarFormulario(e) {
     productos: [],
   };
 
-  const { valido, errores } = validarProveedor(proveedor);
+  const { valido, errores } = Validators.validarProveedor(proveedor);
   if (!valido) {
-    aplicarErroresFormulario(errores);
+    Validators.aplicarErroresFormulario(errores);
     return;
   }
 
   if (editandoId) {
-    actualizarProveedor(editandoId, proveedor);
-    mostrarToast('✓ Proveedor actualizado correctamente', 'success');
+    Storage.actualizarProveedor(editandoId, proveedor);
+    Helpers.mostrarToast('✓ Proveedor actualizado correctamente', 'success');
   } else {
-    guardarProveedor(proveedor);
-    mostrarToast('✓ Proveedor agregado correctamente', 'success');
+    Storage.guardarProveedor(proveedor);
+    Helpers.mostrarToast('✓ Proveedor agregado correctamente', 'success');
   }
 
-  cerrarModal('modal-proveedor');
+  Helpers.cerrarModal('modal-proveedor');
   pintarTabla();
 }
 
 function _confirmarEliminar(id) {
-  const proveedor = obtenerProveedores().find((p) => p.id === id);
-  confirmarAccion({
+  const proveedor = Storage.obtenerProveedores().find((p) => p.id === id);
+  Helpers.confirmarAccion({
     titulo: 'Eliminar proveedor',
     mensaje: `¿Deseas eliminar a "${proveedor?.empresa}"? Esta acción no se puede deshacer.`,
     onConfirmar: () => {
-      eliminarProveedor(id);
-      mostrarToast('Proveedor eliminado', 'info');
+      Storage.eliminarProveedor(id);
+      Helpers.mostrarToast('Proveedor eliminado', 'info');
       pintarTabla();
     },
   });
 }
 
 function _verProductos(id) {
-  const proveedor = obtenerProveedores().find((p) => p.id === id);
+  const proveedor = Storage.obtenerProveedores().find((p) => p.id === id);
   if (!proveedor) return;
-  const productos = obtenerProductos().filter((p) => p.proveedorId === id);
+  const productos = Storage.obtenerProductos().filter((p) => p.proveedorId === id);
 
   document.getElementById('titulo-productos-proveedor').textContent = `Productos de ${proveedor.empresa}`;
   const cont = document.getElementById('contenido-productos-proveedor');
@@ -149,9 +136,9 @@ function _verProductos(id) {
           <tbody>
             ${productos.map((p) => `
               <tr>
-                <td class="cell-strong">${esImagenDataURL(p.imagen) ? `<img src="${p.imagen}" alt="" style="width:20px;height:20px;object-fit:cover;border-radius:4px;vertical-align:middle;margin-right:4px;">` : escaparHTML(p.imagen) + ' '}${escaparHTML(p.nombre)}</td>
-                <td class="cell-mono">${formatearMoneda(p.precioCompra)}</td>
-                <td class="cell-mono">${formatearCantidadUnidad(p.stock, p.unidad)}</td>
+                <td class="cell-strong">${Helpers.esImagenDataURL(p.imagen) ? `<img src="${p.imagen}" alt="" style="width:20px;height:20px;object-fit:cover;border-radius:4px;vertical-align:middle;margin-right:4px;">` : Helpers.escaparHTML(p.imagen) + ' '}${Helpers.escaparHTML(p.nombre)}</td>
+                <td class="cell-mono">${Formatters.formatearMoneda(p.precioCompra)}</td>
+                <td class="cell-mono">${Formatters.formatearCantidadUnidad(p.stock, p.unidad)}</td>
               </tr>
             `).join('')}
           </tbody>
@@ -160,5 +147,5 @@ function _verProductos(id) {
     `;
   }
 
-  abrirModal('modal-productos-proveedor');
+  Helpers.abrirModal('modal-productos-proveedor');
 }

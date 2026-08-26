@@ -6,7 +6,7 @@
    js/components/layout.js) se generen desde una única fuente de verdad.
    ========================================================================== */
 
-export const RUTAS = [
+const RUTAS = [
   { id: 'dashboard', nombre: 'Dashboard', icono: '📊', href: 'index.html' },
   { id: 'pos', nombre: 'POS / Nueva venta', icono: '🧾', href: 'pages/pos.html' },
   { id: 'inventario', nombre: 'Inventario', icono: '📦', href: 'pages/inventario.html' },
@@ -22,8 +22,10 @@ export const RUTAS = [
  * Calcula la ruta relativa correcta hacia `href` según si la página actual
  * está en la raíz del proyecto o dentro de /pages/.
  */
-export function resolverHref(href, dentroDePages) {
+function resolverHref(href, dentroDePages) {
   if (!dentroDePages) return href;
   if (href === 'index.html') return '../index.html';
   return href.replace('pages/', '');
 }
+
+window.Router = { RUTAS, resolverHref };

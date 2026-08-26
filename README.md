@@ -40,20 +40,14 @@ Cada página HTML es un archivo independiente que comparte el mismo sidebar/head
 
 ## 3. Cómo ejecutarlo
 
-No requiere instalación ni backend. Dos opciones:
+No requiere instalación, ni backend, ni servidor. Simplemente:
 
-**Opción A — abrir directamente:**
-Abre `index.html` con doble clic (o "Abrir con → navegador").
+1. Descomprime la carpeta `pescaderia-pos` en tu PC (por ejemplo, en el Escritorio o en una carpeta fija — no la muevas después, para no perder el acceso directo).
+2. Haz doble clic en `index.html`.
 
-> Nota: como el proyecto usa módulos ES6 (`import`/`export`), algunos navegadores bloquean `import` al abrir el archivo con `file://`. Si ves la página en blanco o errores de CORS en la consola, usa la opción B.
+Eso es todo — se abre en tu navegador (Chrome, Edge o Firefox) y funciona igual que cualquier programa de escritorio, sin necesitar internet ni configurar nada. Puedes copiar toda la carpeta a otra PC (por USB, por ejemplo) y funcionará igual ahí.
 
-**Opción B — servidor local (recomendado):**
-```bash
-cd pescaderia-pos
-python3 -m http.server 8080
-# o: npx serve .
-```
-Luego visita `http://localhost:8080`.
+> Nota técnica: los gráficos de la página de Reportes usan una librería (Chart.js) que se carga desde internet. Si esa PC no tiene conexión, todo el resto del sistema (POS, inventario, ventas, clientes) funciona igual; solo los gráficos de Reportes no se mostrarán.
 
 ## 4. Cómo funciona el POS
 

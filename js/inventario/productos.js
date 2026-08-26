@@ -2,29 +2,6 @@
    productos.js — página de gestión de productos (pages/productos.html)
    ========================================================================== */
 
-import { inicializarLayout } from '../components/layout.js';
-import { inicializarModalConfirmar } from '../components/modales.js';
-import {
-  obtenerProductos,
-  obtenerProveedores,
-  guardarProducto,
-  actualizarProducto,
-  eliminarProducto,
-} from '../utils/storage.js';
-import { validarProducto, aplicarErroresFormulario } from '../utils/validators.js';
-import { formatearMoneda, formatearCantidadUnidad, etiquetaUnidad } from '../utils/formatters.js';
-import {
-  mostrarToast,
-  abrirModal,
-  cerrarModal,
-  confirmarAccion,
-  escaparHTML,
-  debounce,
-  inicializarCierreModales,
-  esImagenDataURL,
-  redimensionarImagen,
-} from '../utils/helpers.js';
-
 const CATEGORIAS = ['Pescados', 'Mariscos', 'Camarones', 'Pulpo', 'Calamar', 'Cangrejo', 'Filetes', 'Pescado congelado', 'Productos preparados', 'Otros'];
 const EMOJIS = ['🐟', '🦐', '🦑', '🦀', '🦞', '🐙', '🍣'];
 
@@ -37,14 +14,14 @@ let modoImagen = 'icono'; // 'icono' | 'foto'
 let fotoActual = '';       // data URL de la foto seleccionada (si modoImagen === 'foto')
 
 document.addEventListener('DOMContentLoaded', () => {
-  inicializarLayout({ activo: 'productos', titulo: 'Productos', subtitulo: 'Catálogo maestro de productos', dentroDePages: true });
-  inicializarModalConfirmar();
-  inicializarCierreModales();
+  Layout.inicializarLayout({ activo: 'productos', titulo: 'Productos', subtitulo: 'Catálogo maestro de productos', dentroDePages: true });
+  Modales.inicializarModalConfirmar();
+  Helpers.inicializarCierreModales();
 
   _poblarSelects();
   pintarTabla();
 
-  document.getElementById('buscar').addEventListener('input', debounce((e) => {
+  document.getElementById('buscar').addEventListener('input', Helpers.debounce((e) => {
     filtroTexto = e.target.value.trim().toLowerCase();
     pintarTabla();
   }, 200));
@@ -77,10 +54,10 @@ function _poblarSelects() {
   const selCategoriaForm = document.getElementById('campo-categoria');
   selCategoriaForm.innerHTML = CATEGORIAS.map((c) => `<option value="${c}">${c}</option>`).join('');
 
-  const proveedores = obtenerProveedores();
+  const proveedores = Storage.obtenerProveedores();
   const selProveedor = document.getElementById('campo-proveedorId');
   selProveedor.innerHTML = `<option value="">Sin proveedor asignado</option>` +
-    proveedores.map((p) => `<option value="${p.id}">${escaparHTML(p.empresa)}</option>`).join('');
+    proveedores.map((p) => `<option value="${p.id}">${Helpers.escaparHTML(p.empresa)}</option>`).join('');
 
   const selEmoji = document.getElementById('campo-imagen-icono');
   selEmoji.innerHTML = EMOJIS.map((e) => `<option value="${e}">${e}</option>`).join('');
@@ -98,10 +75,10 @@ function _inicializarSelectorImagen() {
     const archivo = e.target.files[0];
     if (!archivo) return;
     try {
-      fotoActual = await redimensionarImagen(archivo);
+      fotoActual = await Helpers.redimensionarImagen(archivo);
       _mostrarPreviewFoto(fotoActual);
     } catch (err) {
-      mostrarToast(err.message || 'No se pudo procesar la imagen.', 'danger');
+      Helpers.mostrarToast(err.message || 'No se pudo procesar la imagen.', 'danger');
     }
     e.target.value = '';
   });
@@ -139,7 +116,7 @@ function _mostrarPreviewFoto(dataURL) {
 /* ---------------------------------------------------------------------- */
 
 function pintarTabla() {
-  let productos = obtenerProductos().filter((p) => {
+  let productos = Storage.obtenerProductos().filter((p) => {
     const coincideTexto = !filtroTexto || p.nombre.toLowerCase().includes(filtroTexto) || p.sku.toLowerCase().includes(filtroTexto);
     const coincideCategoria = filtroCategoria === 'todas' || p.categoria === filtroCategoria;
     return coincideTexto && coincideCategoria;
@@ -159,7 +136,7 @@ function pintarTabla() {
     th.querySelector('.sort-arrow').textContent = th.dataset.sort === ordenColumna ? (ordenAsc ? '▲' : '▼') : '↕';
   });
 
-  const proveedores = obtenerProveedores();
+  const proveedores = Storage.obtenerProveedores();
   const tbody = document.getElementById('tabla-productos');
 
   if (productos.length === 0) {
@@ -172,19 +149,19 @@ function pintarTabla() {
     const estadoBadge = p.estado === 'activo'
       ? '<span class="badge badge-success">Activo</span>'
       : '<span class="badge badge-neutral">Inactivo</span>';
-    const celdaImagen = esImagenDataURL(p.imagen)
-      ? `<img class="cell-img" src="${p.imagen}" alt="${escaparHTML(p.nombre)}">`
-      : `<span style="font-size:1.4rem;">${escaparHTML(p.imagen)}</span>`;
+    const celdaImagen = Helpers.esImagenDataURL(p.imagen)
+      ? `<img class="cell-img" src="${p.imagen}" alt="${Helpers.escaparHTML(p.nombre)}">`
+      : `<span style="font-size:1.4rem;">${Helpers.escaparHTML(p.imagen)}</span>`;
     return `
       <tr>
         <td>${celdaImagen}</td>
-        <td class="cell-strong">${escaparHTML(p.nombre)}<div class="cell-muted" style="font-size:11px;">${escaparHTML(p.sku)}</div></td>
-        <td>${escaparHTML(p.categoria)}</td>
-        <td class="cell-muted">${escaparHTML(proveedor ? proveedor.empresa : '—')}</td>
-        <td>${etiquetaUnidad(p.unidad)}</td>
-        <td class="cell-mono">${formatearMoneda(p.precioCompra)}</td>
-        <td class="cell-mono cell-strong">${formatearMoneda(p.precioVenta)}</td>
-        <td class="cell-mono">${formatearCantidadUnidad(p.stock, p.unidad)}</td>
+        <td class="cell-strong">${Helpers.escaparHTML(p.nombre)}<div class="cell-muted" style="font-size:11px;">${Helpers.escaparHTML(p.sku)}</div></td>
+        <td>${Helpers.escaparHTML(p.categoria)}</td>
+        <td class="cell-muted">${Helpers.escaparHTML(proveedor ? proveedor.empresa : '—')}</td>
+        <td>${Formatters.etiquetaUnidad(p.unidad)}</td>
+        <td class="cell-mono">${Formatters.formatearMoneda(p.precioCompra)}</td>
+        <td class="cell-mono cell-strong">${Formatters.formatearMoneda(p.precioVenta)}</td>
+        <td class="cell-mono">${Formatters.formatearCantidadUnidad(p.stock, p.unidad)}</td>
         <td>${estadoBadge}</td>
         <td class="cell-actions">
           <button class="btn btn-outline btn-sm btn-editar" data-id="${p.id}">Editar</button>
@@ -206,14 +183,14 @@ function _abrirFormulario(id = null) {
   editandoId = id;
   const form = document.getElementById('form-producto');
   form.reset();
-  aplicarErroresFormulario({});
+  Validators.aplicarErroresFormulario({});
   fotoActual = '';
   _mostrarPreviewFoto('');
 
   document.getElementById('titulo-modal-producto').textContent = id ? 'Editar producto' : 'Nuevo producto';
 
   if (id) {
-    const producto = obtenerProductos().find((p) => p.id === id);
+    const producto = Storage.obtenerProductos().find((p) => p.id === id);
     if (!producto) return;
 
     document.getElementById('campo-nombre').value = producto.nombre || '';
@@ -228,7 +205,7 @@ function _abrirFormulario(id = null) {
     document.getElementById('campo-stockMinimo').value = producto.stockMinimo;
     document.getElementById('campo-estado').value = producto.estado || 'activo';
 
-    if (esImagenDataURL(producto.imagen)) {
+    if (Helpers.esImagenDataURL(producto.imagen)) {
       _cambiarModoImagen('foto');
       fotoActual = producto.imagen;
       _mostrarPreviewFoto(fotoActual);
@@ -242,7 +219,7 @@ function _abrirFormulario(id = null) {
     _cambiarModoImagen('icono');
   }
 
-  abrirModal('modal-producto');
+  Helpers.abrirModal('modal-producto');
 }
 
 function _guardarFormulario(e) {
@@ -267,38 +244,38 @@ function _guardarFormulario(e) {
     estado: document.getElementById('campo-estado').value,
   };
 
-  const { valido, errores } = validarProducto(producto);
+  const { valido, errores } = Validators.validarProducto(producto);
   if (!valido) {
-    aplicarErroresFormulario(errores);
+    Validators.aplicarErroresFormulario(errores);
     return;
   }
 
   try {
     if (editandoId) {
-      actualizarProducto(editandoId, producto);
-      mostrarToast('✓ Producto actualizado correctamente', 'success');
+      Storage.actualizarProducto(editandoId, producto);
+      Helpers.mostrarToast('✓ Producto actualizado correctamente', 'success');
     } else {
-      guardarProducto(producto);
-      mostrarToast('✓ Producto agregado correctamente', 'success');
+      Storage.guardarProducto(producto);
+      Helpers.mostrarToast('✓ Producto agregado correctamente', 'success');
     }
   } catch (err) {
-    mostrarToast('No se pudo guardar: el almacenamiento local está lleno. Intenta con una foto más liviana.', 'danger', 5000);
+    Helpers.mostrarToast('No se pudo guardar: el almacenamiento local está lleno. Intenta con una foto más liviana.', 'danger', 5000);
     return;
   }
 
-  cerrarModal('modal-producto');
+  Helpers.cerrarModal('modal-producto');
   pintarTabla();
 }
 
 function _confirmarEliminar(id) {
-  const producto = obtenerProductos().find((p) => p.id === id);
-  confirmarAccion({
+  const producto = Storage.obtenerProductos().find((p) => p.id === id);
+  Helpers.confirmarAccion({
     titulo: 'Eliminar producto',
     mensaje: `¿Deseas eliminar "${producto?.nombre}"? Esta acción no se puede deshacer.`,
     textoConfirmar: 'Eliminar',
     onConfirmar: () => {
-      eliminarProducto(id);
-      mostrarToast('Producto eliminado', 'info');
+      Storage.eliminarProducto(id);
+      Helpers.mostrarToast('Producto eliminado', 'info');
       pintarTabla();
     },
   });

@@ -2,19 +2,13 @@
    reportes.js — página de reportes y estadísticas (pages/reportes.html)
    ========================================================================== */
 
-import { inicializarLayout } from '../components/layout.js';
-import { inicializarModalConfirmar } from '../components/modales.js';
-import { obtenerVentas, obtenerProductos } from '../utils/storage.js';
-import { formatearMoneda, formatearCantidadUnidad } from '../utils/formatters.js';
-import { escaparHTML, inicializarCierreModales } from '../utils/helpers.js';
-
 document.addEventListener('DOMContentLoaded', () => {
-  inicializarLayout({ activo: 'reportes', titulo: 'Reportes', subtitulo: 'Estadísticas del negocio', dentroDePages: true });
-  inicializarModalConfirmar();
-  inicializarCierreModales();
+  Layout.inicializarLayout({ activo: 'reportes', titulo: 'Reportes', subtitulo: 'Estadísticas del negocio', dentroDePages: true });
+  Modales.inicializarModalConfirmar();
+  Helpers.inicializarCierreModales();
 
-  const ventas = obtenerVentas();
-  const productos = obtenerProductos();
+  const ventas = Storage.obtenerVentas();
+  const productos = Storage.obtenerProductos();
 
   pintarResumen(ventas, productos);
   pintarTopProductos(ventas);
@@ -42,12 +36,12 @@ function pintarResumen(ventas, productos) {
   const gananciaEstimada = totalIngresos - totalCostos;
 
   const tarjetas = [
-    { label: 'Ventas del día', valor: formatearMoneda(ventasHoy.reduce((a, v) => a + v.total, 0)), icono: '📅' },
-    { label: 'Ventas de la semana', valor: formatearMoneda(ventasSemana.reduce((a, v) => a + v.total, 0)), icono: '🗓️' },
-    { label: 'Ventas del mes', valor: formatearMoneda(ventasMes.reduce((a, v) => a + v.total, 0)), icono: '📆' },
-    { label: 'Total de ingresos', valor: formatearMoneda(totalIngresos), icono: '💰' },
-    { label: 'Total de costos', valor: formatearMoneda(totalCostos), icono: '🧮' },
-    { label: 'Ganancia estimada', valor: formatearMoneda(gananciaEstimada), icono: '📈' },
+    { label: 'Ventas del día', valor: Formatters.formatearMoneda(ventasHoy.reduce((a, v) => a + v.total, 0)), icono: '📅' },
+    { label: 'Ventas de la semana', valor: Formatters.formatearMoneda(ventasSemana.reduce((a, v) => a + v.total, 0)), icono: '🗓️' },
+    { label: 'Ventas del mes', valor: Formatters.formatearMoneda(ventasMes.reduce((a, v) => a + v.total, 0)), icono: '📆' },
+    { label: 'Total de ingresos', valor: Formatters.formatearMoneda(totalIngresos), icono: '💰' },
+    { label: 'Total de costos', valor: Formatters.formatearMoneda(totalCostos), icono: '🧮' },
+    { label: 'Ganancia estimada', valor: Formatters.formatearMoneda(gananciaEstimada), icono: '📈' },
   ];
 
   document.getElementById('reportes-stat-grid').innerHTML = tarjetas.map((t) => `
@@ -72,7 +66,7 @@ function _calcularVentasPorProducto(ventas) {
 }
 
 function pintarTopProductos(ventas) {
-  const productos = obtenerProductos();
+  const productos = Storage.obtenerProductos();
   const ventasPorProducto = _calcularVentasPorProducto(ventas).sort((a, b) => b.cantidad - a.cantidad);
 
   const masVendido = ventasPorProducto[0];
@@ -85,17 +79,17 @@ function pintarTopProductos(ventas) {
   }).sort((a, b) => b.ganancia - a.ganancia);
 
   document.getElementById('resumen-productos').innerHTML = `
-    <div class="alert alert-info mb-2">🏆 Producto más vendido: <strong>${escaparHTML(masVendido?.nombre || '—')}</strong> (${masVendido ? formatearCantidadUnidad(masVendido.cantidad, masVendido.unidad) : '—'})</div>
-    <div class="alert alert-warning">📉 Producto menos vendido: <strong>${escaparHTML(menosVendido?.nombre || '—')}</strong> (${menosVendido ? formatearCantidadUnidad(menosVendido.cantidad, menosVendido.unidad) : '—'})</div>
+    <div class="alert alert-info mb-2">🏆 Producto más vendido: <strong>${Helpers.escaparHTML(masVendido?.nombre || '—')}</strong> (${masVendido ? Formatters.formatearCantidadUnidad(masVendido.cantidad, masVendido.unidad) : '—'})</div>
+    <div class="alert alert-warning">📉 Producto menos vendido: <strong>${Helpers.escaparHTML(menosVendido?.nombre || '—')}</strong> (${menosVendido ? Formatters.formatearCantidadUnidad(menosVendido.cantidad, menosVendido.unidad) : '—'})</div>
   `;
 
   const tbody = document.getElementById('tabla-ganancia-productos');
   tbody.innerHTML = gananciaPorProducto.slice(0, 8).map((p) => `
     <tr>
-      <td class="cell-strong">${escaparHTML(p.nombre)}</td>
-      <td class="cell-mono">${formatearCantidadUnidad(p.cantidad, p.unidad)}</td>
-      <td class="cell-mono">${formatearMoneda(p.ingresos)}</td>
-      <td class="cell-mono cell-strong" style="color:var(--success-color);">${formatearMoneda(p.ganancia)}</td>
+      <td class="cell-strong">${Helpers.escaparHTML(p.nombre)}</td>
+      <td class="cell-mono">${Formatters.formatearCantidadUnidad(p.cantidad, p.unidad)}</td>
+      <td class="cell-mono">${Formatters.formatearMoneda(p.ingresos)}</td>
+      <td class="cell-mono cell-strong" style="color:var(--success-color);">${Formatters.formatearMoneda(p.ganancia)}</td>
     </tr>
   `).join('') || `<tr><td colspan="4"><div class="empty-state"><div class="empty-state__title">No hay datos suficientes</div></div></td></tr>`;
 }
