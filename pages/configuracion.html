@@ -46,6 +46,34 @@
           </div>
         </div>
 
+        <div class="card mb-4">
+          <div class="card__header"><h3>💾 Respaldo de datos (en esta PC)</h3></div>
+          <div class="card__body">
+            <p class="text-muted mb-4">
+              El sistema ya guarda todo automáticamente en este navegador. Para tener además una copia de
+              seguridad como archivo en tu computadora (por ejemplo, al final del día o antes de una actualización),
+              exporta un respaldo. Si necesitas restaurarlo — en esta PC o en otra — usa "Importar respaldo".
+            </p>
+            <div class="flex gap-3" style="flex-wrap:wrap;">
+              <button class="btn btn-primary" id="btn-exportar-respaldo">⬇️ Exportar respaldo (.json)</button>
+              <button class="btn btn-outline" id="btn-importar-respaldo">⬆️ Importar respaldo</button>
+              <input type="file" id="input-importar-respaldo" accept="application/json" class="hidden">
+            </div>
+            <p class="hint mt-2">Importar un respaldo <strong>reemplaza</strong> todos los datos actuales por los del archivo.</p>
+          </div>
+        </div>
+
+        <div class="card mb-4">
+          <div class="card__header"><h3>🧾 Cierre de caja</h3></div>
+          <div class="card__body">
+            <p class="text-muted mb-4">
+              Al finalizar el día, genera un archivo de texto con todas las ventas del día, los totales por
+              método de pago y el inventario completo tal como quedó. Se descarga directamente a esta PC.
+            </p>
+            <button class="btn btn-accent" id="btn-cierre-caja">🧾 Generar cierre de caja de hoy</button>
+          </div>
+        </div>
+
         <div class="card">
           <div class="card__header"><h3>Datos de demostración</h3></div>
           <div class="card__body">

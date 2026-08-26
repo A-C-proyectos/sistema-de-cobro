@@ -6,7 +6,7 @@ import { inicializarLayout } from '../components/layout.js';
 import { inicializarModalConfirmar } from '../components/modales.js';
 import { obtenerProductos, obtenerProveedores } from '../utils/storage.js';
 import { formatearMoneda, formatearCantidadUnidad, etiquetaUnidad } from '../utils/formatters.js';
-import { mostrarToast, escaparHTML, debounce, inicializarCierreModales } from '../utils/helpers.js';
+import { mostrarToast, escaparHTML, debounce, inicializarCierreModales, esImagenDataURL } from '../utils/helpers.js';
 import { inicializarModalMovimiento, abrirModalMovimiento, pintarTablaMovimientos } from './movimientos.js';
 
 let filtroTexto = '';
@@ -87,7 +87,7 @@ function pintarTablaStock() {
 
     return `
       <tr>
-        <td style="font-size:1.3rem;">${escaparHTML(p.imagen)}</td>
+        <td>${esImagenDataURL(p.imagen) ? `<img class="cell-img" src="${p.imagen}" alt="${escaparHTML(p.nombre)}">` : `<span style="font-size:1.3rem;">${escaparHTML(p.imagen)}</span>`}</td>
         <td class="cell-strong">${escaparHTML(p.nombre)}<div class="cell-muted" style="font-size:11px;">${escaparHTML(p.sku)}</div></td>
         <td>${escaparHTML(p.categoria)}</td>
         <td class="cell-muted">${escaparHTML(proveedor ? proveedor.empresa : '—')}</td>

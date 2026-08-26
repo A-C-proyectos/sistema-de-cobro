@@ -8,6 +8,8 @@
    que tocar el resto del código (ver services más abajo).
    ========================================================================== */
 
+import { descargarArchivo } from './helpers.js';
+
 const DB_PREFIX = 'pescaderia_';
 const KEYS = {
   PRODUCTOS: `${DB_PREFIX}productos`,
@@ -259,6 +261,110 @@ export function asegurarDatosIniciales() {
     _sembrarDatos();
     _escribir(KEYS.SEED_VERSION, SEED_VERSION);
   }
+}
+
+/* ---------------------------------------------------------------------- */
+/* RESPALDO: EXPORTAR / IMPORTAR TODA LA BASE DE DATOS                    */
+/* ---------------------------------------------------------------------- */
+
+/**
+ * Reúne todos los datos del sistema en un solo objeto, listo para
+ * descargarse como archivo .json (respaldo completo).
+ */
+export function construirRespaldoCompleto() {
+  return {
+    tipo: 'respaldo_pescaderia_pos',
+    version: SEED_VERSION,
+    fechaExportacion: new Date().toISOString(),
+    datos: {
+      productos: obtenerProductos(),
+      clientes: obtenerClientes(),
+      proveedores: obtenerProveedores(),
+      ventas: obtenerVentas(),
+      movimientos: obtenerMovimientos(),
+      config: obtenerConfig(),
+    },
+  };
+}
+
+/**
+ * Descarga el respaldo completo como archivo .json en la PC del usuario.
+ */
+export function exportarRespaldo() {
+  const respaldo = construirRespaldoCompleto();
+  const nombreArchivo = `respaldo-pescaderia-${new Date().toISOString().slice(0, 10)}.json`;
+  descargarArchivo(nombreArchivo, JSON.stringify(respaldo, null, 2), 'application/json');
+  return nombreArchivo;
+}
+
+/**
+ * Restaura todos los datos del sistema a partir de un objeto de respaldo
+ * previamente generado por exportarRespaldo(). Sobrescribe los datos actuales.
+ */
+export function importarRespaldo(objetoRespaldo) {
+  if (!objetoRespaldo || objetoRespaldo.tipo !== 'respaldo_pescaderia_pos' || !objetoRespaldo.datos) {
+    throw new Error('El archivo seleccionado no es un respaldo válido de Pescadería del Mar POS.');
+  }
+  const { productos, clientes, proveedores, ventas, movimientos, config } = objetoRespaldo.datos;
+  _escribir(KEYS.PRODUCTOS, productos || []);
+  _escribir(KEYS.CLIENTES, clientes || []);
+  _escribir(KEYS.PROVEEDORES, proveedores || []);
+  _escribir(KEYS.VENTAS, ventas || []);
+  _escribir(KEYS.MOVIMIENTOS, movimientos || []);
+  _escribir(KEYS.CONFIG, config || obtenerConfig());
+  _escribir(KEYS.SEED_VERSION, SEED_VERSION);
+  return true;
+}
+
+/**
+ * Genera el reporte de cierre de caja del día: ventas del día, totales por
+ * método de pago e inventario completo al momento del cierre. Se descarga
+ * como archivo de texto plano, fácil de abrir e imprimir en cualquier PC.
+ */
+export function generarCierreDeCaja() {
+  const config = obtenerConfig();
+  const productos = obtenerProductos();
+  const hoy = new Date();
+  const ventasHoy = obtenerVentas().filter((v) => new Date(v.fecha).toDateString() === hoy.toDateString());
+
+  const totalVentas = ventasHoy.reduce((acc, v) => acc + v.total, 0);
+  const totalesPorMetodo = ventasHoy.reduce((acc, v) => {
+    acc[v.metodoPago] = (acc[v.metodoPago] || 0) + v.total;
+    return acc;
+  }, {});
+
+  const money = (n) => `${config.moneda}${Number(n).toLocaleString('es-DO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const linea = '-'.repeat(48);
+  let texto = '';
+  texto += `${linea}\n${config.nombreNegocio.toUpperCase()}\nCIERRE DE CAJA\n${linea}\n`;
+  texto += `Fecha: ${hoy.toLocaleDateString('es-DO')}   Hora de cierre: ${hoy.toLocaleTimeString('es-DO')}\n`;
+  texto += `Cajero: ${config.empleadoActual}\n${linea}\n\n`;
+
+  texto += `VENTAS DEL DÍA (${ventasHoy.length})\n${linea}\n`;
+  if (ventasHoy.length === 0) {
+    texto += 'No se registraron ventas hoy.\n\n';
+  } else {
+    ventasHoy.forEach((v) => {
+      texto += `#${v.numero}  ${new Date(v.fecha).toLocaleTimeString('es-DO')}  ${v.metodoPago.padEnd(13)}  ${money(v.total)}\n`;
+    });
+    texto += `\nTotal del día: ${money(totalVentas)}\n\n`;
+    texto += `Por método de pago:\n`;
+    Object.entries(totalesPorMetodo).forEach(([metodo, monto]) => {
+      texto += `  - ${metodo}: ${money(monto)}\n`;
+    });
+    texto += '\n';
+  }
+
+  texto += `${linea}\nINVENTARIO AL CIERRE (${productos.length} productos)\n${linea}\n`;
+  productos.forEach((p) => {
+    const estado = p.stock === 0 ? 'AGOTADO' : p.stock <= p.stockMinimo ? 'STOCK BAJO' : 'normal';
+    texto += `${p.nombre.padEnd(24)} ${String(p.stock).padStart(8)} ${p.unidad.padEnd(6)} [${estado}]\n`;
+  });
+  texto += `${linea}\nFin del reporte de cierre.\n`;
+
+  const nombreArchivo = `cierre-caja-${hoy.toISOString().slice(0, 10)}.txt`;
+  descargarArchivo(nombreArchivo, texto, 'text/plain');
+  return nombreArchivo;
 }
 
 function _sembrarDatos() {

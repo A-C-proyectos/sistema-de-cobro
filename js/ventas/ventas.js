@@ -5,12 +5,13 @@
 import { inicializarLayout } from '../components/layout.js';
 import { inicializarModalConfirmar } from '../components/modales.js';
 import { obtenerVentas, obtenerClientes, obtenerConfig } from '../utils/storage.js';
-import { formatearFecha, formatearFechaHora, formatearMoneda, etiquetaMetodoPago, formatearCantidadUnidad } from '../utils/formatters.js';
-import { mostrarToast, abrirModal, escaparHTML, debounce, inicializarCierreModales } from '../utils/helpers.js';
+import { formatearFecha, formatearFechaHora, formatearMoneda, etiquetaMetodoPago, formatearCantidadUnidad, construirTextoRecibo } from '../utils/formatters.js';
+import { mostrarToast, abrirModal, escaparHTML, debounce, inicializarCierreModales, descargarArchivo } from '../utils/helpers.js';
 
 let filtroTexto = '';
 let filtroMetodo = 'todos';
 let filtroFecha = '';
+let ventaActualParaRecibo = null;
 
 document.addEventListener('DOMContentLoaded', () => {
   inicializarLayout({ activo: 'ventas', titulo: 'Ventas', subtitulo: 'Historial completo de ventas', dentroDePages: true });
@@ -43,6 +44,15 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   document.getElementById('btn-imprimir-detalle').addEventListener('click', () => window.print());
+
+  document.getElementById('btn-descargar-detalle').addEventListener('click', () => {
+    if (!ventaActualParaRecibo) return;
+    const cliente = obtenerClientes().find((c) => c.id === ventaActualParaRecibo.clienteId);
+    const texto = construirTextoRecibo(ventaActualParaRecibo, obtenerConfig(), cliente);
+    const nombreArchivo = `factura-${ventaActualParaRecibo.numero}.txt`;
+    descargarArchivo(nombreArchivo, texto, 'text/plain');
+    mostrarToast(`✓ Factura descargada: ${nombreArchivo}`, 'success');
+  });
 });
 
 function pintarTabla() {
@@ -95,6 +105,7 @@ function pintarTabla() {
 function _verDetalle(id) {
   const venta = obtenerVentas().find((v) => v.id === id);
   if (!venta) return;
+  ventaActualParaRecibo = venta;
   const cliente = obtenerClientes().find((c) => c.id === venta.clienteId);
   const config = obtenerConfig();
 

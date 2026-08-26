@@ -80,11 +80,21 @@ Claves usadas en `localStorage`: `pescaderia_productos`, `pescaderia_clientes`, 
 
 Desde **Productos → + Nuevo producto**, o desde **POS/Inventario** si ya tienes la información básica. Completa nombre, categoría, unidad de medida, precios y stock; el SKU se genera automáticamente si se deja en blanco.
 
-## 8. Cómo reiniciar los datos de demostración
+## 8. Respaldo de datos, cierre de caja y facturas descargables
+
+Pensado para operar en un negocio local desde una sola PC, sin depender de internet:
+
+- **Respaldo de datos** (`Configuración → Respaldo de datos`): descarga un archivo `.json` con absolutamente todo (productos, clientes, proveedores, ventas, movimientos). Sirve como copia de seguridad manual — guárdalo en una USB o carpeta de respaldo. "Importar respaldo" restaura ese archivo, reemplazando los datos actuales (útil si cambias de PC o si necesitas recuperar información).
+- **Cierre de caja** (botón en el Dashboard o en `Configuración`): genera y descarga un archivo `.txt` con la fecha, todas las ventas del día, los totales por método de pago y el inventario completo al momento del cierre. Ideal para archivar cada noche.
+- **Factura descargable**: además de imprimir el comprobante al cobrar (o desde el historial de Ventas), el botón "💾 Descargar factura" guarda esa venta como archivo `.txt` individual en la PC.
+
+Recuerda que, aparte de estos respaldos manuales, el sistema **ya guarda todo automáticamente** en el `localStorage` del navegador mientras trabajas — los respaldos son una copia adicional de seguridad, no un reemplazo del guardado automático.
+
+## 9. Cómo reiniciar los datos de demostración
 
 Ve a **Configuración → Reiniciar datos de demostración**. Esto borra todo lo que hayas creado y vuelve a cargar los 15 productos, 5 clientes, 5 proveedores y 10 ventas de ejemplo originales.
 
-## 9. Cómo conectar posteriormente una API/backend
+## 10. Cómo conectar posteriormente una API/backend
 
 La arquitectura separa intencionalmente:
 

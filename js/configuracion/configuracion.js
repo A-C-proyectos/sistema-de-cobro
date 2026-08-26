@@ -4,7 +4,14 @@
 
 import { inicializarLayout } from '../components/layout.js';
 import { inicializarModalConfirmar } from '../components/modales.js';
-import { obtenerConfig, guardarConfig, reiniciarDatosDemo } from '../utils/storage.js';
+import {
+  obtenerConfig,
+  guardarConfig,
+  reiniciarDatosDemo,
+  exportarRespaldo,
+  importarRespaldo,
+  generarCierreDeCaja,
+} from '../utils/storage.js';
 import { mostrarToast, confirmarAccion, inicializarCierreModales } from '../utils/helpers.js';
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -27,6 +34,48 @@ document.addEventListener('DOMContentLoaded', () => {
       moneda: document.getElementById('campo-moneda').value.trim() || 'RD$',
     });
     mostrarToast('✓ Configuración guardada correctamente', 'success');
+  });
+
+  document.getElementById('btn-exportar-respaldo').addEventListener('click', () => {
+    const nombreArchivo = exportarRespaldo();
+    mostrarToast(`✓ Respaldo descargado: ${nombreArchivo}`, 'success');
+  });
+
+  document.getElementById('btn-importar-respaldo').addEventListener('click', () => {
+    document.getElementById('input-importar-respaldo').click();
+  });
+
+  document.getElementById('input-importar-respaldo').addEventListener('change', (e) => {
+    const archivo = e.target.files[0];
+    if (!archivo) return;
+
+    confirmarAccion({
+      titulo: 'Importar respaldo',
+      mensaje: `Esto reemplazará todos los datos actuales por el contenido de "${archivo.name}". Esta acción no se puede deshacer.`,
+      textoConfirmar: 'Importar y reemplazar',
+      onConfirmar: () => {
+        const lector = new FileReader();
+        lector.onload = () => {
+          try {
+            const objeto = JSON.parse(lector.result);
+            importarRespaldo(objeto);
+            mostrarToast('✓ Respaldo importado correctamente', 'success');
+            setTimeout(() => window.location.reload(), 900);
+          } catch (err) {
+            mostrarToast(err.message || 'No se pudo leer el archivo de respaldo.', 'danger', 5000);
+          }
+        };
+        lector.onerror = () => mostrarToast('No se pudo leer el archivo seleccionado.', 'danger');
+        lector.readAsText(archivo);
+      },
+    });
+
+    e.target.value = ''; // permite volver a seleccionar el mismo archivo si hace falta
+  });
+
+  document.getElementById('btn-cierre-caja').addEventListener('click', () => {
+    const nombreArchivo = generarCierreDeCaja();
+    mostrarToast(`✓ Cierre de caja descargado: ${nombreArchivo}`, 'success');
   });
 
   document.getElementById('btn-reiniciar-demo').addEventListener('click', () => {

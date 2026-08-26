@@ -12,11 +12,12 @@ import {
   obtenerClientePorId,
 } from '../utils/storage.js';
 import { validarStockDisponible, validarEfectivoSuficiente } from '../utils/validators.js';
-import { mostrarToast, abrirModal, cerrarModal, escaparHTML } from '../utils/helpers.js';
-import { formatearMoneda, formatearFechaHora, etiquetaMetodoPago, formatearCantidadUnidad } from '../utils/formatters.js';
+import { mostrarToast, abrirModal, cerrarModal, escaparHTML, descargarArchivo } from '../utils/helpers.js';
+import { formatearMoneda, formatearFechaHora, etiquetaMetodoPago, formatearCantidadUnidad, construirTextoRecibo } from '../utils/formatters.js';
 
 let metodoSeleccionado = 'efectivo';
 let onVentaCompletada = () => {};
+let ventaActualParaRecibo = null;
 
 export function inicializarCheckout({ alCompletarVenta }) {
   onVentaCompletada = alCompletarVenta || (() => {});
@@ -37,6 +38,14 @@ export function inicializarCheckout({ alCompletarVenta }) {
     cerrarModal('modal-recibo');
   });
   document.getElementById('btn-imprimir-recibo')?.addEventListener('click', () => window.print());
+  document.getElementById('btn-descargar-recibo')?.addEventListener('click', () => {
+    if (!ventaActualParaRecibo) return;
+    const nombreArchivo = `factura-${ventaActualParaRecibo.numero}.txt`;
+    const cliente = ventaActualParaRecibo.clienteId ? obtenerClientePorId(ventaActualParaRecibo.clienteId) : null;
+    const texto = construirTextoRecibo(ventaActualParaRecibo, obtenerConfig(), cliente);
+    descargarArchivo(nombreArchivo, texto, 'text/plain');
+    mostrarToast(`✓ Factura descargada: ${nombreArchivo}`, 'success');
+  });
 }
 
 export function abrirCheckout() {
@@ -156,6 +165,7 @@ function _confirmarVenta() {
 }
 
 function _mostrarRecibo(venta) {
+  ventaActualParaRecibo = venta;
   const config = obtenerConfig();
   const cliente = venta.clienteId ? obtenerClientePorId(venta.clienteId) : null;
 

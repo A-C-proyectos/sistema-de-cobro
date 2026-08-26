@@ -130,3 +130,63 @@ export function crearElemento(html) {
   template.innerHTML = html.trim();
   return template.content.firstElementChild;
 }
+
+/**
+ * Descarga contenido de texto como archivo en la PC del usuario
+ * (respaldo de datos, comprobantes, cierres de caja, etc.).
+ */
+export function descargarArchivo(nombreArchivo, contenido, tipoMime = 'text/plain') {
+  const blob = new Blob([contenido], { type: tipoMime });
+  const url = URL.createObjectURL(blob);
+  const enlace = document.createElement('a');
+  enlace.href = url;
+  enlace.download = nombreArchivo;
+  document.body.appendChild(enlace);
+  enlace.click();
+  document.body.removeChild(enlace);
+  URL.revokeObjectURL(url);
+}
+
+/* ---------------------------------------------------------------------- */
+/* Fotos de producto                                                       */
+/* ---------------------------------------------------------------------- */
+
+/**
+ * Verifica si un valor de "imagen" de producto es una foto (data URL)
+ * en vez de un icono/emoji.
+ */
+export function esImagenDataURL(valor) {
+  return typeof valor === 'string' && valor.startsWith('data:image');
+}
+
+/**
+ * Lee un archivo de imagen seleccionado por el usuario, lo redimensiona y
+ * comprime en el navegador (usando <canvas>) y devuelve un data URL listo
+ * para guardarse en localStorage sin ocupar demasiado espacio.
+ */
+export function redimensionarImagen(archivo, ladoMaximo = 320, calidad = 0.75) {
+  return new Promise((resolve, reject) => {
+    if (!archivo || !archivo.type.startsWith('image/')) {
+      reject(new Error('Selecciona un archivo de imagen válido (JPG, PNG, WEBP...).'));
+      return;
+    }
+    const lector = new FileReader();
+    lector.onerror = () => reject(new Error('No se pudo leer la imagen seleccionada.'));
+    lector.onload = () => {
+      const img = new Image();
+      img.onerror = () => reject(new Error('El archivo seleccionado no es una imagen válida.'));
+      img.onload = () => {
+        const escala = Math.min(1, ladoMaximo / Math.max(img.width, img.height));
+        const ancho = Math.round(img.width * escala);
+        const alto = Math.round(img.height * escala);
+        const canvas = document.createElement('canvas');
+        canvas.width = ancho;
+        canvas.height = alto;
+        canvas.getContext('2d').drawImage(img, 0, 0, ancho, alto);
+        resolve(canvas.toDataURL('image/jpeg', calidad));
+      };
+      img.src = lector.result;
+    };
+    lector.readAsDataURL(archivo);
+  });
+}

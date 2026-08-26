@@ -91,3 +91,37 @@ const ETIQUETAS_MOVIMIENTO = {
 export function etiquetaMovimiento(tipo) {
   return ETIQUETAS_MOVIMIENTO[tipo] || capitalizar(tipo);
 }
+
+/**
+ * Construye la versión en texto plano de una factura/comprobante de venta,
+ * lista para descargarse como archivo .txt (ver helpers.js → descargarArchivo).
+ */
+export function construirTextoRecibo(venta, config, cliente) {
+  const linea = '='.repeat(32);
+  const sep = '-'.repeat(32);
+  let t = '';
+  t += `${linea}\n${config.nombreNegocio.toUpperCase()}\n${linea}\n\n`;
+  t += `Venta #${venta.numero}\n\n`;
+  t += `Fecha: ${formatearFechaHora(venta.fecha)}\n`;
+  t += `Cliente: ${cliente ? cliente.nombre : 'Cliente ocasional'}\n`;
+  t += `Cajero: ${venta.empleado}\n\n`;
+  t += `${sep}\nProducto              Cant.     Total\n${sep}\n`;
+  venta.items.forEach((i) => {
+    const nombre = i.nombre.slice(0, 20).padEnd(20);
+    const cant = formatearCantidadUnidad(i.cantidad, i.unidad).padStart(8);
+    const total = formatearMoneda(i.subtotal).padStart(10);
+    t += `${nombre}${cant}${total}\n`;
+  });
+  t += `${sep}\n\n`;
+  t += `Subtotal:       ${formatearMoneda(venta.subtotal)}\n`;
+  t += `Descuento:      ${formatearMoneda(venta.descuento)}\n`;
+  t += `Impuesto:       ${formatearMoneda(venta.impuesto)}\n`;
+  t += `TOTAL:          ${formatearMoneda(venta.total)}\n\n`;
+  t += `Método de pago: ${etiquetaMetodoPago(venta.metodoPago)}\n`;
+  if (venta.metodoPago === 'efectivo') {
+    t += `Recibido:       ${formatearMoneda(venta.efectivoRecibido)}\n`;
+    t += `Cambio:         ${formatearMoneda(venta.cambio)}\n`;
+  }
+  t += `\n${linea}\n      ¡Gracias por su compra!\n${linea}\n`;
+  return t;
+}

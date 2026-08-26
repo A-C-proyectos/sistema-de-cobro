@@ -9,9 +9,10 @@ import {
   obtenerProductos,
   obtenerVentas,
   obtenerClientes,
+  generarCierreDeCaja,
 } from './utils/storage.js';
 import { formatearMoneda, formatearFechaHora, etiquetaMetodoPago, formatearCantidadUnidad } from './utils/formatters.js';
-import { escaparHTML, inicializarCierreModales } from './utils/helpers.js';
+import { mostrarToast, escaparHTML, inicializarCierreModales, esImagenDataURL } from './utils/helpers.js';
 
 document.addEventListener('DOMContentLoaded', () => {
   asegurarDatosIniciales();
@@ -22,6 +23,11 @@ document.addEventListener('DOMContentLoaded', () => {
   pintarEstadisticas();
   pintarVentasRecientes();
   pintarStockBajo();
+
+  document.getElementById('btn-cierre-caja-dashboard').addEventListener('click', () => {
+    const nombreArchivo = generarCierreDeCaja();
+    mostrarToast(`✓ Cierre de caja descargado: ${nombreArchivo}`, 'success');
+  });
 });
 
 function pintarEstadisticas() {
@@ -111,7 +117,7 @@ function pintarStockBajo() {
       : '<span class="badge badge-warning">Stock bajo</span>';
     return `
       <tr>
-        <td class="cell-strong">${escaparHTML(p.imagen)} ${escaparHTML(p.nombre)}</td>
+        <td class="cell-strong">${esImagenDataURL(p.imagen) ? `<img src="${p.imagen}" alt="" style="width:20px;height:20px;object-fit:cover;border-radius:4px;vertical-align:middle;margin-right:4px;">` : escaparHTML(p.imagen) + ' '}${escaparHTML(p.nombre)}</td>
         <td class="cell-mono">${formatearCantidadUnidad(p.stock, p.unidad)}</td>
         <td class="cell-mono cell-muted">${formatearCantidadUnidad(p.stockMinimo, p.unidad)}</td>
         <td>${estado}</td>

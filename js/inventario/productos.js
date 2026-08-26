@@ -13,7 +13,17 @@ import {
 } from '../utils/storage.js';
 import { validarProducto, aplicarErroresFormulario } from '../utils/validators.js';
 import { formatearMoneda, formatearCantidadUnidad, etiquetaUnidad } from '../utils/formatters.js';
-import { mostrarToast, abrirModal, cerrarModal, confirmarAccion, escaparHTML, debounce, inicializarCierreModales } from '../utils/helpers.js';
+import {
+  mostrarToast,
+  abrirModal,
+  cerrarModal,
+  confirmarAccion,
+  escaparHTML,
+  debounce,
+  inicializarCierreModales,
+  esImagenDataURL,
+  redimensionarImagen,
+} from '../utils/helpers.js';
 
 const CATEGORIAS = ['Pescados', 'Mariscos', 'Camarones', 'Pulpo', 'Calamar', 'Cangrejo', 'Filetes', 'Pescado congelado', 'Productos preparados', 'Otros'];
 const EMOJIS = ['🐟', '🦐', '🦑', '🦀', '🦞', '🐙', '🍣'];
@@ -23,6 +33,8 @@ let filtroCategoria = 'todas';
 let ordenColumna = null;
 let ordenAsc = true;
 let editandoId = null;
+let modoImagen = 'icono'; // 'icono' | 'foto'
+let fotoActual = '';       // data URL de la foto seleccionada (si modoImagen === 'foto')
 
 document.addEventListener('DOMContentLoaded', () => {
   inicializarLayout({ activo: 'productos', titulo: 'Productos', subtitulo: 'Catálogo maestro de productos', dentroDePages: true });
@@ -53,6 +65,8 @@ document.addEventListener('DOMContentLoaded', () => {
       pintarTabla();
     });
   });
+
+  _inicializarSelectorImagen();
 });
 
 function _poblarSelects() {
@@ -68,9 +82,61 @@ function _poblarSelects() {
   selProveedor.innerHTML = `<option value="">Sin proveedor asignado</option>` +
     proveedores.map((p) => `<option value="${p.id}">${escaparHTML(p.empresa)}</option>`).join('');
 
-  const selEmoji = document.getElementById('campo-imagen');
+  const selEmoji = document.getElementById('campo-imagen-icono');
   selEmoji.innerHTML = EMOJIS.map((e) => `<option value="${e}">${e}</option>`).join('');
 }
+
+/* ---------------------------------------------------------------------- */
+/* Selector de imagen: icono vs. foto                                     */
+/* ---------------------------------------------------------------------- */
+
+function _inicializarSelectorImagen() {
+  document.getElementById('btn-modo-icono').addEventListener('click', () => _cambiarModoImagen('icono'));
+  document.getElementById('btn-modo-foto').addEventListener('click', () => _cambiarModoImagen('foto'));
+
+  document.getElementById('campo-imagen-foto').addEventListener('change', async (e) => {
+    const archivo = e.target.files[0];
+    if (!archivo) return;
+    try {
+      fotoActual = await redimensionarImagen(archivo);
+      _mostrarPreviewFoto(fotoActual);
+    } catch (err) {
+      mostrarToast(err.message || 'No se pudo procesar la imagen.', 'danger');
+    }
+    e.target.value = '';
+  });
+
+  document.getElementById('btn-quitar-foto').addEventListener('click', () => {
+    fotoActual = '';
+    _mostrarPreviewFoto('');
+  });
+}
+
+function _cambiarModoImagen(modo) {
+  modoImagen = modo;
+  document.getElementById('btn-modo-icono').classList.toggle('is-active', modo === 'icono');
+  document.getElementById('btn-modo-foto').classList.toggle('is-active', modo === 'foto');
+  document.getElementById('bloque-icono').classList.toggle('hidden', modo !== 'icono');
+  document.getElementById('bloque-foto').classList.toggle('hidden', modo !== 'foto');
+}
+
+function _mostrarPreviewFoto(dataURL) {
+  const cont = document.getElementById('preview-foto-cont');
+  const img = document.getElementById('preview-foto');
+  if (dataURL) {
+    img.src = dataURL;
+    cont.style.display = 'flex';
+    cont.style.alignItems = 'center';
+    cont.style.gap = '10px';
+  } else {
+    img.src = '';
+    cont.style.display = 'none';
+  }
+}
+
+/* ---------------------------------------------------------------------- */
+/* Tabla                                                                    */
+/* ---------------------------------------------------------------------- */
 
 function pintarTabla() {
   let productos = obtenerProductos().filter((p) => {
@@ -106,9 +172,12 @@ function pintarTabla() {
     const estadoBadge = p.estado === 'activo'
       ? '<span class="badge badge-success">Activo</span>'
       : '<span class="badge badge-neutral">Inactivo</span>';
+    const celdaImagen = esImagenDataURL(p.imagen)
+      ? `<img class="cell-img" src="${p.imagen}" alt="${escaparHTML(p.nombre)}">`
+      : `<span style="font-size:1.4rem;">${escaparHTML(p.imagen)}</span>`;
     return `
       <tr>
-        <td style="font-size:1.4rem;">${escaparHTML(p.imagen)}</td>
+        <td>${celdaImagen}</td>
         <td class="cell-strong">${escaparHTML(p.nombre)}<div class="cell-muted" style="font-size:11px;">${escaparHTML(p.sku)}</div></td>
         <td>${escaparHTML(p.categoria)}</td>
         <td class="cell-muted">${escaparHTML(proveedor ? proveedor.empresa : '—')}</td>
@@ -129,24 +198,48 @@ function pintarTabla() {
   tbody.querySelectorAll('.btn-eliminar').forEach((b) => b.addEventListener('click', () => _confirmarEliminar(b.dataset.id)));
 }
 
+/* ---------------------------------------------------------------------- */
+/* Formulario                                                               */
+/* ---------------------------------------------------------------------- */
+
 function _abrirFormulario(id = null) {
   editandoId = id;
   const form = document.getElementById('form-producto');
   form.reset();
   aplicarErroresFormulario({});
+  fotoActual = '';
+  _mostrarPreviewFoto('');
 
   document.getElementById('titulo-modal-producto').textContent = id ? 'Editar producto' : 'Nuevo producto';
 
   if (id) {
     const producto = obtenerProductos().find((p) => p.id === id);
     if (!producto) return;
-    Object.entries(producto).forEach(([campo, valor]) => {
-      const input = document.getElementById(`campo-${campo}`);
-      if (input) input.value = valor;
-    });
+
+    document.getElementById('campo-nombre').value = producto.nombre || '';
+    document.getElementById('campo-descripcion').value = producto.descripcion || '';
+    document.getElementById('campo-categoria').value = producto.categoria || '';
+    document.getElementById('campo-proveedorId').value = producto.proveedorId || '';
+    document.getElementById('campo-unidad').value = producto.unidad || 'unidad';
+    document.getElementById('campo-sku').value = producto.sku || '';
+    document.getElementById('campo-precioCompra').value = producto.precioCompra;
+    document.getElementById('campo-precioVenta').value = producto.precioVenta;
+    document.getElementById('campo-stock').value = producto.stock;
+    document.getElementById('campo-stockMinimo').value = producto.stockMinimo;
+    document.getElementById('campo-estado').value = producto.estado || 'activo';
+
+    if (esImagenDataURL(producto.imagen)) {
+      _cambiarModoImagen('foto');
+      fotoActual = producto.imagen;
+      _mostrarPreviewFoto(fotoActual);
+    } else {
+      _cambiarModoImagen('icono');
+      document.getElementById('campo-imagen-icono').value = producto.imagen || '🐟';
+    }
   } else {
     document.getElementById('campo-estado').value = 'activo';
-    document.getElementById('campo-imagen').value = '🐟';
+    document.getElementById('campo-imagen-icono').value = '🐟';
+    _cambiarModoImagen('icono');
   }
 
   abrirModal('modal-producto');
@@ -154,6 +247,10 @@ function _abrirFormulario(id = null) {
 
 function _guardarFormulario(e) {
   e.preventDefault();
+
+  const imagenFinal = modoImagen === 'foto' && fotoActual
+    ? fotoActual
+    : document.getElementById('campo-imagen-icono').value;
 
   const producto = {
     nombre: document.getElementById('campo-nombre').value.trim(),
@@ -166,7 +263,7 @@ function _guardarFormulario(e) {
     stock: Number(document.getElementById('campo-stock').value),
     stockMinimo: Number(document.getElementById('campo-stockMinimo').value),
     sku: document.getElementById('campo-sku').value.trim() || `SKU-${Date.now().toString().slice(-6)}`,
-    imagen: document.getElementById('campo-imagen').value,
+    imagen: imagenFinal,
     estado: document.getElementById('campo-estado').value,
   };
 
@@ -176,12 +273,17 @@ function _guardarFormulario(e) {
     return;
   }
 
-  if (editandoId) {
-    actualizarProducto(editandoId, producto);
-    mostrarToast('✓ Producto actualizado correctamente', 'success');
-  } else {
-    guardarProducto(producto);
-    mostrarToast('✓ Producto agregado correctamente', 'success');
+  try {
+    if (editandoId) {
+      actualizarProducto(editandoId, producto);
+      mostrarToast('✓ Producto actualizado correctamente', 'success');
+    } else {
+      guardarProducto(producto);
+      mostrarToast('✓ Producto agregado correctamente', 'success');
+    }
+  } catch (err) {
+    mostrarToast('No se pudo guardar: el almacenamiento local está lleno. Intenta con una foto más liviana.', 'danger', 5000);
+    return;
   }
 
   cerrarModal('modal-producto');

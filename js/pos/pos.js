@@ -9,7 +9,7 @@ import { inicializarCheckout, abrirCheckout } from './checkout.js';
 import { obtenerProductos, obtenerClientes, obtenerConfig, obtenerProductoPorId } from '../utils/storage.js';
 import { validarStockDisponible } from '../utils/validators.js';
 import { formatearMoneda, formatearCantidadUnidad, etiquetaUnidad } from '../utils/formatters.js';
-import { mostrarToast, escaparHTML, debounce, inicializarCierreModales } from '../utils/helpers.js';
+import { mostrarToast, escaparHTML, debounce, inicializarCierreModales, esImagenDataURL } from '../utils/helpers.js';
 
 let filtroTexto = '';
 let filtroCategoria = 'todas';
@@ -106,7 +106,7 @@ function pintarCatalogo() {
 
     return `
       <button class="product-card ${agotado ? 'is-disabled' : ''}" data-id="${p.id}" ${agotado ? 'disabled' : ''}>
-        <div class="product-card__img">${escaparHTML(p.imagen || '🐟')}</div>
+        <div class="product-card__img">${esImagenDataURL(p.imagen) ? `<img src="${p.imagen}" alt="${escaparHTML(p.nombre)}">` : escaparHTML(p.imagen || '🐟')}</div>
         <div class="product-card__body">
           <div class="product-card__name">${escaparHTML(p.nombre)}</div>
           <div class="product-card__cat">${escaparHTML(p.categoria)}</div>

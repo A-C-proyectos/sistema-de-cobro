@@ -13,7 +13,7 @@ import {
 } from '../utils/storage.js';
 import { validarProveedor, aplicarErroresFormulario } from '../utils/validators.js';
 import { formatearMoneda, formatearCantidadUnidad } from '../utils/formatters.js';
-import { mostrarToast, abrirModal, cerrarModal, confirmarAccion, escaparHTML, debounce, inicializarCierreModales } from '../utils/helpers.js';
+import { mostrarToast, abrirModal, cerrarModal, confirmarAccion, escaparHTML, debounce, inicializarCierreModales, esImagenDataURL } from '../utils/helpers.js';
 
 let filtroTexto = '';
 let editandoId = null;
@@ -149,7 +149,7 @@ function _verProductos(id) {
           <tbody>
             ${productos.map((p) => `
               <tr>
-                <td class="cell-strong">${escaparHTML(p.imagen)} ${escaparHTML(p.nombre)}</td>
+                <td class="cell-strong">${esImagenDataURL(p.imagen) ? `<img src="${p.imagen}" alt="" style="width:20px;height:20px;object-fit:cover;border-radius:4px;vertical-align:middle;margin-right:4px;">` : escaparHTML(p.imagen) + ' '}${escaparHTML(p.nombre)}</td>
                 <td class="cell-mono">${formatearMoneda(p.precioCompra)}</td>
                 <td class="cell-mono">${formatearCantidadUnidad(p.stock, p.unidad)}</td>
               </tr>
