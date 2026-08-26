@@ -12,6 +12,7 @@ function inicializarLayout({ activo, titulo, subtitulo = '', dentroDePages = fal
   document.title = `${titulo} · ${config.nombreNegocio}`;
 
   const sidebarSlot = document.getElementById('sidebar-slot');
+  const sidebarSlotPages = document.getElementById('sidebar-slot-pages');
   const topbarSlot = document.getElementById('topbar-slot');
 
   if (sidebarSlot) {
@@ -20,6 +21,25 @@ function inicializarLayout({ activo, titulo, subtitulo = '', dentroDePages = fal
       <aside class="sidebar" id="sidebar">
         <div class="sidebar__brand">
           <img class="sidebar__brand-icon" src="./assets/logo.png" alt="Logo">
+          <span class="sidebar__brand-text">${Helpers.escaparHTML(config.nombreNegocio)}<small>Sistema POS</small></span>
+        </div>
+        <nav class="sidebar__nav">
+          ${Router.RUTAS.map((ruta) => `
+            <a class="sidebar__link ${ruta.id === activo ? 'is-active' : ''}" href="${Router.resolverHref(ruta.href, dentroDePages)}">
+              <span class="icon">${ruta.icono}</span>
+              <span>${ruta.nombre}</span>
+            </a>
+          `).join('')}
+        </nav>
+        <div class="sidebar__footer">${Helpers.escaparHTML(config.nombreNegocio)} © ${new Date().getFullYear()}<br>v1.0 · localStorage</div>
+      </aside>
+    `;
+  } else if (sidebarSlotPages) {
+    sidebarSlotPages.innerHTML = `
+      <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar__brand">
+          <img class="sidebar__brand-icon" src="../assets/logo.png" alt="Logo">
           <span class="sidebar__brand-text">${Helpers.escaparHTML(config.nombreNegocio)}<small>Sistema POS</small></span>
         </div>
         <nav class="sidebar__nav">
