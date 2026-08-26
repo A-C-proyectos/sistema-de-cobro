@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Configuración · Pescadería del Mar POS</title>
+<link rel="stylesheet" href="../css/main.css">
+</head>
+<body>
+  <div class="app-shell">
+    <div id="sidebar-slot"></div>
+    <div class="main">
+      <div id="topbar-slot"></div>
+      <div class="content" style="max-width: 720px;">
+        <div class="page-header">
+          <div>
+            <h1>Configuración</h1>
+            <p>Datos del negocio y preferencias del sistema</p>
+          </div>
+        </div>
+
+        <div class="card mb-4">
+          <div class="card__header"><h3>Datos del negocio</h3></div>
+          <div class="card__body">
+            <form id="form-configuracion">
+              <div class="form-group">
+                <label for="campo-nombreNegocio">Nombre del negocio</label>
+                <input type="text" id="campo-nombreNegocio" class="input">
+              </div>
+              <div class="form-group">
+                <label for="campo-empleadoActual">Empleado / cajero actual</label>
+                <input type="text" id="campo-empleadoActual" class="input">
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="campo-impuestoPorcentaje">Impuesto aplicado (%)</label>
+                  <input type="number" id="campo-impuestoPorcentaje" class="input" min="0" step="0.01">
+                </div>
+                <div class="form-group">
+                  <label for="campo-moneda">Símbolo de moneda</label>
+                  <input type="text" id="campo-moneda" class="input" maxlength="4">
+                </div>
+              </div>
+              <button type="submit" class="btn btn-accent">Guardar cambios</button>
+            </form>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card__header"><h3>Datos de demostración</h3></div>
+          <div class="card__body">
+            <p class="text-muted mb-4">Restablece el sistema a su estado inicial con 15 productos, 5 clientes, 5 proveedores y 10 ventas de ejemplo. Útil para volver a probar la aplicación desde cero.</p>
+            <button class="btn btn-danger" id="btn-reiniciar-demo">🔄 Reiniciar datos de demostración</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="modales-slot"></div>
+
+  <script type="module" src="../js/configuracion/configuracion.js"></script>
+</body>
+</html>

@@ -1,0 +1,84 @@
+/* ==========================================================================
+   Variables CSS — Sistema de diseño "Pescadería del Mar"
+   Paleta inspirada en mercado de pescado: hielo, acero, teal oceánico y
+   coral (color de la carne del pescado fresco) como acento de acción.
+   ========================================================================== */
+
+:root {
+  /* Color — superficies */
+  --color-bg: #eef3f4;
+  --color-surface: #ffffff;
+  --color-surface-alt: #f6fafb;
+  --color-sidebar: #0a3f4f;
+  --color-sidebar-hover: #0f5266;
+
+  /* Color — marca */
+  --primary-color: #0f5c73;
+  --primary-dark: #0a3f4f;
+  --primary-light: #e2f1f3;
+
+  /* Color — acento (coral / carne de pescado fresco) */
+  --secondary-color: #e4633f;
+  --secondary-dark: #c94e2c;
+  --secondary-light: #fce7e0;
+
+  /* Color — estado */
+  --success-color: #2e9e6d;
+  --success-light: #e2f6ee;
+  --warning-color: #e8a23d;
+  --warning-light: #fdf1de;
+  --danger-color: #d64550;
+  --danger-light: #fbe6e7;
+  --info-color: #2f8fc0;
+  --info-light: #e5f3fa;
+
+  /* Color — texto */
+  --text-color: #16282b;
+  --text-muted: #5d7377;
+  --text-inverse: #f4f9fa;
+  --background-color: var(--color-bg);
+
+  /* Bordes */
+  --border-color: #dce6e8;
+  --border-color-strong: #c2d1d4;
+
+  /* Tipografía */
+  --font-display: 'Space Grotesk', 'Segoe UI', sans-serif;
+  --font-body: 'Inter', 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', 'Consolas', monospace;
+
+  /* Escala tipográfica */
+  --fs-xs: 0.75rem;
+  --fs-sm: 0.8125rem;
+  --fs-base: 0.9375rem;
+  --fs-md: 1.0625rem;
+  --fs-lg: 1.25rem;
+  --fs-xl: 1.6rem;
+  --fs-2xl: 2.1rem;
+
+  /* Espaciado */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+
+  /* Radios y sombras */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --shadow-sm: 0 1px 2px rgba(10, 40, 50, 0.06);
+  --shadow-md: 0 4px 16px rgba(10, 40, 50, 0.08);
+  --shadow-lg: 0 12px 32px rgba(10, 40, 50, 0.14);
+
+  /* Layout */
+  --sidebar-width: 240px;
+  --sidebar-width-collapsed: 72px;
+  --header-height: 64px;
+
+  /* Transiciones */
+  --transition-fast: 120ms ease;
+  --transition-base: 200ms ease;
+}

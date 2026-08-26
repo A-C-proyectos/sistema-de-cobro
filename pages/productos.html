@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Productos · Pescadería del Mar POS</title>
+<link rel="stylesheet" href="../css/main.css">
+<link rel="stylesheet" href="../css/inventario.css">
+</head>
+<body>
+  <div class="app-shell">
+    <div id="sidebar-slot"></div>
+    <div class="main">
+      <div id="topbar-slot"></div>
+      <div class="content">
+        <div class="page-header">
+          <div>
+            <h1>Productos</h1>
+            <p>Catálogo maestro: precios, unidades y proveedores</p>
+          </div>
+          <button class="btn btn-accent" id="btn-nuevo-producto">+ Nuevo producto</button>
+        </div>
+
+        <div class="toolbar">
+          <div class="search-box" style="min-width:260px;">
+            <span class="icon">🔍</span>
+            <input type="text" id="buscar" class="input" placeholder="Buscar por nombre o SKU...">
+          </div>
+          <select id="filtro-categoria" class="input" style="max-width:220px;"></select>
+        </div>
+
+        <div class="card">
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th class="no-sort"></th>
+                  <th data-sort="nombre">Producto <span class="sort-arrow">↕</span></th>
+                  <th data-sort="categoria">Categoría <span class="sort-arrow">↕</span></th>
+                  <th class="no-sort">Proveedor</th>
+                  <th class="no-sort">Unidad</th>
+                  <th data-sort="precioCompra">P. Compra <span class="sort-arrow">↕</span></th>
+                  <th data-sort="precioVenta">P. Venta <span class="sort-arrow">↕</span></th>
+                  <th data-sort="stock">Stock <span class="sort-arrow">↕</span></th>
+                  <th class="no-sort">Estado</th>
+                  <th class="no-sort"></th>
+                </tr>
+              </thead>
+              <tbody id="tabla-productos"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal producto -->
+  <div class="modal-overlay" id="modal-producto">
+    <div class="modal modal--lg">
+      <form id="form-producto">
+        <div class="modal__header">
+          <h3 id="titulo-modal-producto">Nuevo producto</h3>
+          <button type="button" class="modal__close" data-cerrar-modal>✕</button>
+        </div>
+        <div class="modal__body">
+          <div class="product-form-grid">
+            <div class="form-group full">
+              <label for="campo-nombre">Nombre del producto *</label>
+              <input type="text" id="campo-nombre" class="input" placeholder="Ej. Pargo rojo">
+              <span class="field-error" id="error-nombre"></span>
+            </div>
+            <div class="form-group full">
+              <label for="campo-descripcion">Descripción</label>
+              <textarea id="campo-descripcion" class="input" rows="2" placeholder="Descripción breve del producto"></textarea>
+            </div>
+            <div class="form-group">
+              <label for="campo-categoria">Categoría *</label>
+              <select id="campo-categoria" class="input"></select>
+              <span class="field-error" id="error-categoria"></span>
+            </div>
+            <div class="form-group">
+              <label for="campo-proveedorId">Proveedor</label>
+              <select id="campo-proveedorId" class="input"></select>
+            </div>
+            <div class="form-group">
+              <label for="campo-unidad">Unidad de medida *</label>
+              <select id="campo-unidad" class="input">
+                <option value="unidad">Unidad</option>
+                <option value="kg">Kilogramo (kg)</option>
+                <option value="lb">Libra (lb)</option>
+                <option value="1/2kg">1/2 kg</option>
+                <option value="1/2lb">1/2 libra</option>
+              </select>
+              <span class="field-error" id="error-unidad"></span>
+            </div>
+            <div class="form-group">
+              <label for="campo-sku">Código / SKU</label>
+              <input type="text" id="campo-sku" class="input" placeholder="Se genera automáticamente si se deja vacío">
+            </div>
+            <div class="form-group">
+              <label for="campo-precioCompra">Precio de compra (RD$) *</label>
+              <input type="number" id="campo-precioCompra" class="input" min="0" step="0.01">
+              <span class="field-error" id="error-precioCompra"></span>
+            </div>
+            <div class="form-group">
+              <label for="campo-precioVenta">Precio de venta (RD$) *</label>
+              <input type="number" id="campo-precioVenta" class="input" min="0" step="0.01">
+              <span class="field-error" id="error-precioVenta"></span>
+            </div>
+            <div class="form-group">
+              <label for="campo-stock">Stock actual *</label>
+              <input type="number" id="campo-stock" class="input" min="0" step="0.01">
+              <span class="field-error" id="error-stock"></span>
+            </div>
+            <div class="form-group">
+              <label for="campo-stockMinimo">Stock mínimo *</label>
+              <input type="number" id="campo-stockMinimo" class="input" min="0" step="0.01">
+              <span class="field-error" id="error-stockMinimo"></span>
+            </div>
+            <div class="form-group">
+              <label for="campo-imagen">Icono</label>
+              <select id="campo-imagen" class="input"></select>
+            </div>
+            <div class="form-group">
+              <label for="campo-estado">Estado</label>
+              <select id="campo-estado" class="input">
+                <option value="activo">Activo</option>
+                <option value="inactivo">Inactivo</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="modal__footer">
+          <button type="button" class="btn btn-outline" data-cerrar-modal>Cancelar</button>
+          <button type="submit" class="btn btn-accent">Guardar producto</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="modales-slot"></div>
+
+  <script type="module" src="../js/inventario/productos.js"></script>
+</body>
+</html>

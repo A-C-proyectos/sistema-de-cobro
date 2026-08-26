@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reportes · Pescadería del Mar POS</title>
+<link rel="stylesheet" href="../css/main.css">
+</head>
+<body>
+  <div class="app-shell">
+    <div id="sidebar-slot"></div>
+    <div class="main">
+      <div id="topbar-slot"></div>
+      <div class="content">
+        <div class="page-header">
+          <div>
+            <h1>Reportes</h1>
+            <p>Estadísticas de ventas, productos y ganancias</p>
+          </div>
+        </div>
+
+        <div class="stat-grid" id="reportes-stat-grid"></div>
+
+        <div id="resumen-productos" class="mb-4"></div>
+
+        <div class="stat-grid" style="grid-template-columns: 1fr 1fr;">
+          <div class="card">
+            <div class="card__header"><h3>Ventas últimos 14 días</h3></div>
+            <div class="card__body"><canvas id="grafico-ventas" height="220"></canvas></div>
+          </div>
+          <div class="card">
+            <div class="card__header"><h3>Productos más vendidos</h3></div>
+            <div class="card__body"><canvas id="grafico-top-productos" height="220"></canvas></div>
+          </div>
+        </div>
+
+        <div class="card mt-4">
+          <div class="card__header"><h3>Productos con mayor ganancia</h3></div>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th class="no-sort">Producto</th>
+                  <th class="no-sort">Cantidad vendida</th>
+                  <th class="no-sort">Ingresos</th>
+                  <th class="no-sort">Ganancia</th>
+                </tr>
+              </thead>
+              <tbody id="tabla-ganancia-productos"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="modales-slot"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+  <script type="module" src="../js/reportes/reportes.js"></script>
+</body>
+</html>
