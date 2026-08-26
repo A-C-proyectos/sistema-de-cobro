@@ -40,14 +40,39 @@ Cada página HTML es un archivo independiente que comparte el mismo sidebar/head
 
 ## 3. Cómo ejecutarlo
 
-No requiere instalación, ni backend, ni servidor. Simplemente:
+No requiere instalación, ni backend, ni servidor. Dos formas de abrirlo:
 
-1. Descomprime la carpeta `pescaderia-pos` en tu PC (por ejemplo, en el Escritorio o en una carpeta fija — no la muevas después, para no perder el acceso directo).
-2. Haz doble clic en `index.html`.
+**Forma simple:** doble clic en `index.html` — se abre en tu navegador normal (con barra de direcciones y pestañas, como cualquier página web).
 
-Eso es todo — se abre en tu navegador (Chrome, Edge o Firefox) y funciona igual que cualquier programa de escritorio, sin necesitar internet ni configurar nada. Puedes copiar toda la carpeta a otra PC (por USB, por ejemplo) y funcionará igual ahí.
+**Forma "como app" (recomendada para el negocio):** doble clic en `Iniciar-App.bat` (Windows) o `Iniciar-App.command` (Mac). Esto abre el sistema en una ventana propia, sin barra de direcciones ni pestañas — se ve y se siente como un programa instalado, no como una página web. Usa el Chrome o Edge que ya tengas instalado; no necesita internet ni instalar nada adicional.
+
+En ambos casos puedes copiar toda la carpeta `pescaderia-pos` a otra PC (por USB, por ejemplo) y funcionará igual ahí — no depende de la ubicación ni de esta PC en particular.
 
 > Nota técnica: los gráficos de la página de Reportes usan una librería (Chart.js) que se carga desde internet. Si esa PC no tiene conexión, todo el resto del sistema (POS, inventario, ventas, clientes) funciona igual; solo los gráficos de Reportes no se mostrarán.
+
+## 3.1. Cómo ponerle el nombre de tu negocio
+
+No hace falta tocar código. Ve a **Configuración → Nombre del negocio**, escribe el nombre real y guarda. Eso actualiza automáticamente:
+- El nombre en el sidebar y su pie de página.
+- El título de la pestaña del navegador (o de la ventana, si usas el modo app).
+- El encabezado de las facturas y el cierre de caja.
+
+## 3.2. Cómo crear un acceso directo en el escritorio con ícono propio
+
+**Windows:**
+1. Click derecho sobre `Iniciar-App.bat` → "Crear acceso directo".
+2. Mueve ese acceso directo al Escritorio.
+3. Click derecho sobre el acceso directo → "Propiedades" → botón "Cambiar icono..." → selecciona tu archivo de logo en formato `.ico` (ver más abajo cómo conseguirlo).
+4. Click derecho sobre el acceso directo → "Cambiar nombre" → ponle el nombre que quieras (ej. "Pescadería Doña Ana").
+
+**Mac:**
+1. Selecciona `Iniciar-App.command`, cópialo (Cmd+C) y pégalo (Cmd+V) en el Escritorio como acceso directo (alias): con el archivo seleccionado, Cmd+Ctrl+Alt+arrastrar al Escritorio, o click derecho → "Crear alias".
+2. Para el ícono: abre tu logo en Vista Previa, Cmd+A y Cmd+C para copiarlo; luego click derecho en el alias → "Obtener información", click en el icono pequeño de la esquina superior izquierda de esa ventana, y Cmd+V para pegar el logo ahí.
+3. Renombra el alias con el nombre que quieras.
+
+## 3.3. Si en algún momento quieres un instalador ".exe" de verdad
+
+Lo de arriba (acceso directo + ícono + modo app de Chrome) da la experiencia de una app instalada sin nada adicional. Si más adelante quieres un instalador `.exe` real (con Node.js y Electron), es un paso más técnico que requiere herramientas de desarrollo e internet en la PC donde se construya — avísame si llegas a ese punto y te preparo los archivos necesarios para hacerlo.
 
 ## 4. Cómo funciona el POS
 
@@ -84,9 +109,11 @@ Pensado para operar en un negocio local desde una sola PC, sin depender de inter
 
 Recuerda que, aparte de estos respaldos manuales, el sistema **ya guarda todo automáticamente** en el `localStorage` del navegador mientras trabajas — los respaldos son una copia adicional de seguridad, no un reemplazo del guardado automático.
 
-## 9. Cómo reiniciar los datos de demostración
+## 9. Cómo vaciar todos los datos y empezar de cero
 
-Ve a **Configuración → Reiniciar datos de demostración**. Esto borra todo lo que hayas creado y vuelve a cargar los 15 productos, 5 clientes, 5 proveedores y 10 ventas de ejemplo originales.
+Ve a **Configuración → Vaciar todos los datos**. Esto borra por completo productos, clientes, proveedores, ventas y movimientos, dejando el sistema listo para cargar todo desde cero. Se recomienda exportar un respaldo (ver sección 8) antes de usar esta opción, por si necesitas recuperar algo después.
+
+El sistema **arranca vacío por defecto** la primera vez que se abre — no trae productos ni ventas de ejemplo. Carga tus productos reales desde **Productos → + Nuevo producto**.
 
 ## 10. Cómo conectar posteriormente una API/backend
 
