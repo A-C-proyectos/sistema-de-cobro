@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard · Sistema POS</title>
+<link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+  <div class="app-shell">
+    <div id="sidebar-slot"></div>
+
+    <div class="main">
+      <div id="topbar-slot"></div>
+
+      <div class="content">
+        <div class="page-header">
+          <div>
+            <h1>Panel general</h1>
+            <p>Estado del negocio en tiempo real</p>
+          </div>
+          <div class="flex gap-2">
+            <button class="btn btn-outline" id="btn-cierre-caja-dashboard">🧾 Cerrar caja del día</button>
+            <a href="pages/pos.html" class="btn btn-accent">🧾 Nueva venta</a>
+          </div>
+        </div>
+
+        <div class="stat-grid" id="stat-grid">
+          <!-- tarjetas de estadísticas generadas por JS -->
+        </div>
+
+        <div class="card mb-4">
+          <div class="card__header">
+            <h3>Ventas recientes</h3>
+            <a href="pages/ventas.html" class="btn btn-ghost btn-sm">Ver todas →</a>
+          </div>
+          <div class="card__body" style="padding:0;">
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th class="no-sort">ID</th>
+                    <th class="no-sort">Fecha</th>
+                    <th class="no-sort">Cliente</th>
+                    <th class="no-sort">Empleado</th>
+                    <th class="no-sort">Método</th>
+                    <th class="no-sort">Total</th>
+                    <th class="no-sort">Estado</th>
+                  </tr>
+                </thead>
+                <tbody id="tabla-ventas-recientes"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card__header">
+            <h3>Productos con stock bajo</h3>
+            <a href="pages/inventario.html" class="btn btn-ghost btn-sm">Ver inventario →</a>
+          </div>
+          <div class="card__body" style="padding:0;">
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th class="no-sort">Producto</th>
+                    <th class="no-sort">Stock actual</th>
+                    <th class="no-sort">Stock mínimo</th>
+                    <th class="no-sort">Estado</th>
+                  </tr>
+                </thead>
+                <tbody id="tabla-stock-bajo"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="modales-slot"></div>
+
+  <script src="js/utils/helpers.js"></script>
+  <script src="js/utils/formatters.js"></script>
+  <script src="js/utils/validators.js"></script>
+  <script src="js/utils/storage.js"></script>
+  <script src="js/router.js"></script>
+  <script src="js/components/layout.js"></script>
+  <script src="js/components/modales.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

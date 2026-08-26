@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inventario · Sistema POS</title>
+<link rel="stylesheet" href="../css/main.css">
+<link rel="stylesheet" href="../css/inventario.css">
+</head>
+<body>
+  <div class="app-shell">
+    <div id="sidebar-slot"></div>
+    <div class="main">
+      <div id="topbar-slot"></div>
+      <div class="content">
+        <div class="page-header">
+          <div>
+            <h1>Inventario</h1>
+            <p>Control de stock, entradas y salidas de mercancía</p>
+          </div>
+          <div class="flex gap-2">
+            <button class="btn btn-outline" id="btn-registrar-salida">− Registrar salida / ajuste</button>
+            <button class="btn btn-accent" id="btn-registrar-entrada">+ Registrar entrada</button>
+          </div>
+        </div>
+
+        <div class="tab-bar">
+          <button class="is-active" data-tab="panel-stock">Control de stock</button>
+          <button data-tab="panel-movimientos">Historial de movimientos</button>
+        </div>
+
+        <div id="panel-stock" class="tab-panel">
+          <div class="toolbar">
+            <div class="search-box" style="min-width:260px;">
+              <span class="icon">🔍</span>
+              <input type="text" id="buscar" class="input" placeholder="Buscar producto por nombre o SKU...">
+            </div>
+            <div class="chip-group">
+              <button class="chip is-active" data-estado="todos">Todos</button>
+              <button class="chip" data-estado="normal">Normal</button>
+              <button class="chip" data-estado="bajo">Stock bajo</button>
+              <button class="chip" data-estado="agotado">Agotado</button>
+            </div>
+          </div>
+          <div class="card">
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th class="no-sort"></th>
+                    <th class="no-sort">Producto</th>
+                    <th class="no-sort">Categoría</th>
+                    <th class="no-sort">Proveedor</th>
+                    <th class="no-sort">Stock actual</th>
+                    <th class="no-sort">Stock mínimo</th>
+                    <th class="no-sort">Estado</th>
+                    <th class="no-sort"></th>
+                  </tr>
+                </thead>
+                <tbody id="tabla-inventario"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div id="panel-movimientos" class="tab-panel hidden">
+          <div class="card">
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th class="no-sort">Fecha</th>
+                    <th class="no-sort">Producto</th>
+                    <th class="no-sort">Tipo</th>
+                    <th class="no-sort">Cantidad</th>
+                    <th class="no-sort">Motivo</th>
+                    <th class="no-sort">Usuario</th>
+                  </tr>
+                </thead>
+                <tbody id="tabla-movimientos"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal movimiento -->
+  <div class="modal-overlay" id="modal-movimiento">
+    <div class="modal">
+      <form id="form-movimiento">
+        <div class="modal__header">
+          <h3>Registrar movimiento de inventario</h3>
+          <button type="button" class="modal__close" data-cerrar-modal>✕</button>
+        </div>
+        <div class="modal__body">
+          <div class="form-group">
+            <label for="mov-producto">Producto *</label>
+            <select id="mov-producto" class="input"></select>
+            <span class="field-error" id="mov-error-productoId"></span>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="mov-tipo">Tipo de movimiento *</label>
+              <select id="mov-tipo" class="input">
+                <option value="entrada">Entrada (compra a proveedor)</option>
+                <option value="salida">Salida</option>
+                <option value="ajuste">Ajuste de inventario</option>
+                <option value="dano">Producto dañado</option>
+                <option value="vencido">Producto vencido</option>
+                <option value="devolucion">Devolución</option>
+                <option value="merma">Merma</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="mov-cantidad">Cantidad *</label>
+              <input type="number" id="mov-cantidad" class="input" min="0" step="0.01" placeholder="0.00">
+              <span class="field-error" id="mov-error-cantidad"></span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="mov-motivo">Motivo *</label>
+            <input type="text" id="mov-motivo" class="input" placeholder="Ej. Compra a proveedor, venta, producto dañado...">
+            <span class="field-error" id="mov-error-motivo"></span>
+          </div>
+        </div>
+        <div class="modal__footer">
+          <button type="button" class="btn btn-outline" data-cerrar-modal>Cancelar</button>
+          <button type="submit" class="btn btn-accent">Registrar movimiento</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="modales-slot"></div>
+
+  <script src="../js/utils/helpers.js"></script>
+  <script src="../js/utils/formatters.js"></script>
+  <script src="../js/utils/validators.js"></script>
+  <script src="../js/utils/storage.js"></script>
+  <script src="../js/router.js"></script>
+  <script src="../js/components/layout.js"></script>
+  <script src="../js/components/modales.js"></script>
+  <script src="../js/inventario/movimientos.js"></script>
+  <script src="../js/inventario/inventario.js"></script>
+</body>
+</html>

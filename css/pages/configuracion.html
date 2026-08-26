@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Configuración · Sistema POS</title>
+<link rel="stylesheet" href="../css/main.css">
+</head>
+<body>
+  <div class="app-shell">
+    <div id="sidebar-slot"></div>
+    <div class="main">
+      <div id="topbar-slot"></div>
+      <div class="content" style="max-width: 720px;">
+        <div class="page-header">
+          <div>
+            <h1>Configuración</h1>
+            <p>Datos del negocio y preferencias del sistema</p>
+          </div>
+        </div>
+
+        <div class="card mb-4">
+          <div class="card__header"><h3>Datos del negocio</h3></div>
+          <div class="card__body">
+            <form id="form-configuracion">
+              <div class="form-group">
+                <label for="campo-nombreNegocio">Nombre del negocio</label>
+                <input type="text" id="campo-nombreNegocio" class="input">
+              </div>
+              <div class="form-group">
+                <label for="campo-empleadoActual">Empleado / cajero actual</label>
+                <input type="text" id="campo-empleadoActual" class="input">
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="campo-impuestoPorcentaje">Impuesto aplicado (%)</label>
+                  <input type="number" id="campo-impuestoPorcentaje" class="input" min="0" step="0.01">
+                </div>
+                <div class="form-group">
+                  <label for="campo-moneda">Símbolo de moneda</label>
+                  <input type="text" id="campo-moneda" class="input" maxlength="4">
+                </div>
+              </div>
+              <button type="submit" class="btn btn-accent">Guardar cambios</button>
+            </form>
+          </div>
+        </div>
+
+        <div class="card mb-4">
+          <div class="card__header"><h3>💾 Respaldo de datos (en esta PC)</h3></div>
+          <div class="card__body">
+            <p class="text-muted mb-4">
+              El sistema ya guarda todo automáticamente en este navegador. Para tener además una copia de
+              seguridad como archivo en tu computadora (por ejemplo, al final del día o antes de una actualización),
+              exporta un respaldo. Si necesitas restaurarlo — en esta PC o en otra — usa "Importar respaldo".
+            </p>
+            <div class="flex gap-3" style="flex-wrap:wrap;">
+              <button class="btn btn-primary" id="btn-exportar-respaldo">⬇️ Exportar respaldo (.json)</button>
+              <button class="btn btn-outline" id="btn-importar-respaldo">⬆️ Importar respaldo</button>
+              <input type="file" id="input-importar-respaldo" accept="application/json" class="hidden">
+            </div>
+            <p class="hint mt-2">Importar un respaldo <strong>reemplaza</strong> todos los datos actuales por los del archivo.</p>
+          </div>
+        </div>
+
+        <div class="card mb-4">
+          <div class="card__header"><h3>🧾 Cierre de caja</h3></div>
+          <div class="card__body">
+            <p class="text-muted mb-4">
+              Al finalizar el día, genera un archivo de texto con todas las ventas del día, los totales por
+              método de pago y el inventario completo tal como quedó. Se descarga directamente a esta PC.
+            </p>
+            <button class="btn btn-accent" id="btn-cierre-caja">🧾 Generar cierre de caja de hoy</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card__header"><h3>⚠️ Vaciar todos los datos</h3></div>
+          <div class="card__body">
+            <p class="text-muted mb-4">Borra por completo productos, clientes, proveedores, ventas y movimientos, dejando el sistema listo para empezar de cero. Útil si necesitas reiniciar el negocio desde cero en esta PC. Se recomienda exportar un respaldo antes de usar esta opción.</p>
+            <button class="btn btn-danger" id="btn-vaciar-datos">🗑️ Vaciar todos los datos</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="modales-slot"></div>
+
+  <script src="../js/utils/helpers.js"></script>
+  <script src="../js/utils/formatters.js"></script>
+  <script src="../js/utils/validators.js"></script>
+  <script src="../js/utils/storage.js"></script>
+  <script src="../js/router.js"></script>
+  <script src="../js/components/layout.js"></script>
+  <script src="../js/components/modales.js"></script>
+  <script src="../js/configuracion/configuracion.js"></script>
+</body>
+</html>
